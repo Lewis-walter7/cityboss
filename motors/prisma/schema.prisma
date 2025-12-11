@@ -1,0 +1,121 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "..generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+}
+
+// ------------------------------
+// Admin & Auth
+// ------------------------------
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+}
+
+model Admin {
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  email    String    @unique
+  password String? // Optional for invite flow until set
+  name     String
+  role     AdminRole @default(ADMIN)
+
+  // Invite System
+  inviteToken       String?
+  inviteTokenExpiry DateTime?
+
+  // Reset Password
+  resetToken       String?
+  resetTokenExpiry DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ------------------------------
+// MotorsHub (Vehicles)
+// ------------------------------
+
+enum VehicleStatus {
+  AVAILABLE
+  PENDING
+  SOLD
+}
+
+model Vehicle {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  make    String
+  model   String
+  year    Int
+  mileage Int
+  price   Float
+
+  // Details
+  fuelType     String
+  transmission String
+  bodyType     String?
+  color        String?
+  vin          String?
+
+  description String?
+  features    String[]
+
+  // Media
+  images String[] // Array of URLs from UploadThing
+
+  status VehicleStatus @default(AVAILABLE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ------------------------------
+// UrbanEstates (Properties)
+// ------------------------------
+
+enum PropertyStatus {
+  AVAILABLE
+  PENDING
+  SOLD
+  RENTED
+}
+
+enum PropertyType {
+  HOUSE
+  APARTMENT
+  CONDO
+  LAND
+  COMMERCIAL
+}
+
+model Property {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  title   String
+  price   Float
+  address String
+  city    String
+
+  // Details
+  bedrooms  Int
+  bathrooms Int
+  sqft      Int
+  type      PropertyType
+
+  description String?
+  amenities   String[]
+
+  // Media
+  images    String[] // URLs
+  floorPlan String? // URL
+
+  locationLat Float?
+  locationLng Float?
+
+  status PropertyStatus @default(AVAILABLE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
