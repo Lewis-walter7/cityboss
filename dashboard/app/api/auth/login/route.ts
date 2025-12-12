@@ -1,9 +1,7 @@
-
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Admin from '@/models/Admin';
-import { comparePassword, signToken } from '@/lib/auth';
-import { cookies } from 'next/headers';
+import { comparePassword, signToken, setTokenCookie } from '@/lib/auth';
 
 export async function POST(request: Request) {
     try {
@@ -33,37 +31,37 @@ export async function POST(request: Request) {
 
         // Find admin
         const admin = await Admin.findOne({ email });
-
-        if (!admin || !admin.password) { // Check if password exists (could be invite pending)
+        if (!admin || !admin.password) {
             return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
         }
 
         // Verify password
         const isValid = await comparePassword(password, admin.password);
-
         if (!isValid) {
             return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
         }
 
-        // Sign Token
-        const token = await signToken({ id: admin._id.toString(), email: admin.email, role: admin.role, name: admin.name });
-
-        const cookieStore = await cookies();
-        cookieStore.set('admin_token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 60 * 60 * 24, // 1 day
-            path: '/',
+        // Sign JWT
+        const token = await signToken({
+            id: admin._id.toString(),
+            email: admin.email,
+            role: admin.role,
+            name: admin.name,
         });
 
-        return NextResponse.json({ success: true, admin: { name: admin.name, email: admin.email, role: admin.role } });
+        // Set cookie using helper
+        setTokenCookie(token);
+
+        return NextResponse.json({
+            success: true,
+            admin: { name: admin.name, email: admin.email, role: admin.role },
+        });
     } catch (error) {
         console.error('Login error:', error);
-        // Return more specific error in development
-        const errorMessage = process.env.NODE_ENV === 'development' && error instanceof Error
-            ? error.message
-            : 'Internal Server Error';
+        const errorMessage =
+            process.env.NODE_ENV === 'development' && error instanceof Error
+                ? error.message
+                : 'Internal Server Error';
         return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
 }
