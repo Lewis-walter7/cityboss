@@ -20,9 +20,9 @@ async function seed() {
         await mongoose.connect(MONGODB_URI!);
         console.log('Connected to DB');
 
-        const email = 'admin@cityboss.com';
-        const password = 'password123';
-        const name = 'Super Admin';
+        const email = 'lewisindusa@gmail.com';
+        const password = 'Hunterlxxis@admin1234';
+        const name = 'Lewis Indusa';
 
         // Check if exists
         const exists = await Admin.findOne({ email });
