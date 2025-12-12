@@ -31,12 +31,12 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
 
     return (
         <Link href={`/vehicles/${vehicle._id?.toString()}`}>
-            <div className="card card-hover group cursor-pointer">
-                <div className="relative h-64 overflow-hidden">
+            <div className="card card-hover group cursor-pointer bg-[#111111] rounded-xl border border-white/5 overflow-hidden">
+                <div className="relative h-64 overflow-hidden rounded-t-xl">
                     {vehicle.images && vehicle.images.length > 0 ? (
                         <Image
                             src={vehicle.images[0]}
-                            alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
+                            alt={`${vehicle.year} ${vehicle.make} ${vehicle.vehicleModel}`}
                             fill
                             className={`object-cover group-hover:scale-110 transition-transform duration-500 ${isImageLoading ? 'opacity-0' : 'opacity-100'
                                 }`}
@@ -74,8 +74,8 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
                 </div>
 
                 <div className="p-6">
-                    <h3 className="text-xl font-bold mb-2">
-                        {vehicle.year} {vehicle.make} {vehicle.model}
+                    <h3 className="text-sm font-bold mb-2">
+                        {vehicle.year} {vehicle.make} {vehicle.vehicleModel}
                     </h3>
 
                     <div className="flex items-center gap-4 text-sm text-[var(--color-silver)] mb-4">
@@ -102,9 +102,6 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
                         <span className="heading-4 text-[var(--color-accent)]">
                             {formatPrice(vehicle.price)}
                         </span>
-                        <Button size="sm" variant="primary">
-                            View Details
-                        </Button>
                     </div>
                 </div>
             </div>

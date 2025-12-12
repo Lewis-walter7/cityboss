@@ -23,7 +23,7 @@ const years = Array.from({ length: 30 }, (_, i) => {
 export default function SellCarPage() {
     const [formData, setFormData] = useState({
         make: '',
-        model: '',
+        vehicleModel: '',
         year: years[0].value,
         mileage: '',
         price: '',
@@ -93,7 +93,7 @@ export default function SellCarPage() {
                                 setMessage('');
                                 setFormData({
                                     make: '',
-                                    model: '',
+                                    vehicleModel: '',
                                     year: years[0].value,
                                     mileage: '',
                                     price: '',
@@ -203,8 +203,8 @@ export default function SellCarPage() {
                                             label="Model"
                                             required
                                             placeholder="e.g. X5"
-                                            value={formData.model}
-                                            onChange={(e) => setFormData(prev => ({ ...prev, model: e.target.value }))}
+                                            value={formData.vehicleModel}
+                                            onChange={(e) => setFormData(prev => ({ ...prev, vehicleModel: e.target.value }))}
                                         />
                                         <Select
                                             label="Year"

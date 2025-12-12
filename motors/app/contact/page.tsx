@@ -51,7 +51,7 @@ export default function ContactPage() {
         {
             icon: IoCallOutline,
             title: 'Call Us',
-            content: '+254 700 000 000',
+            content: '+254 713 111 106',
             sub: 'Mon-Sat from 8am to 6pm'
         },
         {
@@ -63,7 +63,7 @@ export default function ContactPage() {
         {
             icon: IoLocationOutline,
             title: 'Visit Showroom',
-            content: 'Ngong Road, Nairobi',
+            content: 'Ridgeway Astro Petro Station, Kiambu Road, Kiambu',
             sub: 'Next to Karen Roundabout'
         },
         {
@@ -141,7 +141,7 @@ export default function ContactPage() {
                                 <div className="relative z-10 text-center">
                                     <IoLocationOutline size={48} className="text-[var(--color-accent)] mx-auto mb-2" />
                                     <p className="text-white font-semibold text-lg">Visit Our Showroom</p>
-                                    <p className="text-[var(--color-silver)]">Ngong Road, Nairobi</p>
+                                    <p className="text-[var(--color-silver)]">Ridgeway Astro Petro Station, <br /> Kiambu Road, Kiambu</p>
                                 </div>
                             </motion.div>
                         </div>

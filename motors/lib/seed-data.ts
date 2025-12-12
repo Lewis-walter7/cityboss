@@ -3,7 +3,7 @@ import { Vehicle } from './types';
 export const seedVehicles: Omit<Vehicle, '_id'>[] = [
     {
         make: 'BMW',
-        model: 'X5 M Sport',
+        vehicleModel: 'X5 M Sport',
         year: 2023,
         price: 67900,
         mileage: 12500,
@@ -28,7 +28,7 @@ export const seedVehicles: Omit<Vehicle, '_id'>[] = [
     },
     {
         make: 'Mercedes-Benz',
-        model: 'C-Class C300',
+        vehicleModel: 'C-Class C300',
         year: 2024,
         price: 54900,
         mileage: 5200,
@@ -53,7 +53,7 @@ export const seedVehicles: Omit<Vehicle, '_id'>[] = [
     },
     {
         make: 'Ford',
-        model: 'F-150 Raptor',
+        vehicleModel: 'F-150 Raptor',
         year: 2023,
         price: 72500,
         mileage: 18000,
@@ -78,7 +78,7 @@ export const seedVehicles: Omit<Vehicle, '_id'>[] = [
     },
     {
         make: 'Porsche',
-        model: '911 Carrera',
+        vehicleModel: '911 Carrera',
         year: 2022,
         price: 119900,
         mileage: 8500,
@@ -103,7 +103,7 @@ export const seedVehicles: Omit<Vehicle, '_id'>[] = [
     },
     {
         make: 'Tesla',
-        model: 'Model S Plaid',
+        vehicleModel: 'Model S Plaid',
         year: 2024,
         price: 94900,
         mileage: 2100,
@@ -128,7 +128,7 @@ export const seedVehicles: Omit<Vehicle, '_id'>[] = [
     },
     {
         make: 'Jeep',
-        model: 'Wrangler Rubicon',
+        vehicleModel: 'Wrangler Rubicon',
         year: 2023,
         price: 52900,
         mileage: 14500,
@@ -153,7 +153,7 @@ export const seedVehicles: Omit<Vehicle, '_id'>[] = [
     },
     {
         make: 'Audi',
-        model: 'Q8 Prestige',
+        vehicleModel: 'Q8 Prestige',
         year: 2023,
         price: 78900,
         mileage: 9800,
@@ -178,7 +178,7 @@ export const seedVehicles: Omit<Vehicle, '_id'>[] = [
     },
     {
         make: 'Lexus',
-        model: 'RX 350 F Sport',
+        vehicleModel: 'RX 350 F Sport',
         year: 2023,
         price: 56900,
         mileage: 11200,
@@ -203,7 +203,7 @@ export const seedVehicles: Omit<Vehicle, '_id'>[] = [
     },
     {
         make: 'Chevrolet',
-        model: 'Corvette Stingray',
+        vehicleModel: 'Corvette Stingray',
         year: 2024,
         price: 72900,
         mileage: 3200,
@@ -228,7 +228,7 @@ export const seedVehicles: Omit<Vehicle, '_id'>[] = [
     },
     {
         make: 'Toyota',
-        model: 'Camry XSE',
+        vehicleModel: 'Camry XSE',
         year: 2024,
         price: 34900,
         mileage: 6500,
@@ -253,7 +253,7 @@ export const seedVehicles: Omit<Vehicle, '_id'>[] = [
     },
     {
         make: 'Land Rover',
-        model: 'Range Rover Sport',
+        vehicleModel: 'Range Rover Sport',
         year: 2023,
         price: 89900,
         mileage: 15000,
@@ -278,7 +278,7 @@ export const seedVehicles: Omit<Vehicle, '_id'>[] = [
     },
     {
         make: 'Honda',
-        model: 'Accord Sport',
+        vehicleModel: 'Accord Sport',
         year: 2024,
         price: 32900,
         mileage: 4800,

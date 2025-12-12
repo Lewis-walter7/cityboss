@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
     try {
         const body: SellCarFormData = await request.json();
 
-        if (!body.make || !body.model || !body.year || !body.ownerEmail) {
+        if (!body.make || !body.vehicleModel || !body.year || !body.ownerEmail) {
             return NextResponse.json(
                 { error: 'Make, model, year, and owner email are required' },
                 { status: 400 }

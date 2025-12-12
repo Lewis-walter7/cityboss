@@ -9,9 +9,10 @@ import { Select } from '@/components/ui/Select';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Vehicle } from '@/lib/types';
+import { useDebounce } from '@/hooks/useDebounce';
+
 import { useFavorites } from '@/hooks/useFavorites';
 import { IoSearch, IoClose } from 'react-icons/io5';
-import { seedVehicles } from '@/lib/seed-data';
 
 const makes = ['All', 'BMW', 'Mercedes-Benz', 'Ford', 'Porsche', 'Tesla', 'Jeep', 'Audi', 'Lexus', 'Chevrolet', 'Toyota', 'Land Rover', 'Honda'];
 const bodyTypes = ['All', 'SUV', 'Sedan', '4x4', 'Luxury', 'Coupe', 'Truck', 'Convertible'];
@@ -33,58 +34,45 @@ export default function ListingsPage() {
     const [fuelType, setFuelType] = useState('All');
     const [minPrice, setMinPrice] = useState('');
     const [maxPrice, setMaxPrice] = useState('');
+
+    // Search
     const [search, setSearch] = useState('');
+    const debouncedSearch = useDebounce(search, 500);
 
     const { toggleFavorite, isFavorite } = useFavorites();
 
     React.useEffect(() => {
         filterVehicles();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page, make, bodyType, transmission, fuelType, minPrice, maxPrice, search]);
+    }, [page, make, bodyType, transmission, fuelType, minPrice, maxPrice, debouncedSearch]);
 
     const filterVehicles = async () => {
         setLoading(true);
-        // Simulate network delay for realistic feel
-        await new Promise(resolve => setTimeout(resolve, 300));
+        try {
+            const params = new URLSearchParams();
+            if (make !== 'All') params.append('make', make);
+            if (bodyType !== 'All') params.append('bodyType', bodyType);
+            if (transmission !== 'All') params.append('transmission', transmission);
+            if (fuelType !== 'All') params.append('fuelType', fuelType);
+            if (minPrice) params.append('minPrice', minPrice);
+            if (maxPrice) params.append('maxPrice', maxPrice);
+            if (search) params.append('search', search);
+            params.append('page', page.toString());
+            params.append('limit', ITEMS_PER_PAGE.toString());
 
-        // Cast seed data to Vehicle type since it's missing _id
-        let filtered = seedVehicles.map((v, i) => ({ ...v, _id: `seed-${i}` } as unknown as Vehicle));
+            const response = await fetch(`/api/vehicles?${params.toString()}`);
+            const data = await response.json();
 
-        if (make !== 'All') {
-            filtered = filtered.filter(v => v.make === make);
+            if (data.vehicles) {
+                setVehicles(data.vehicles);
+                setTotal(data.total);
+                setTotalPages(data.totalPages);
+            }
+        } catch (error) {
+            console.error('Failed to fetch vehicles:', error);
+        } finally {
+            setLoading(false);
         }
-        if (bodyType !== 'All') {
-            filtered = filtered.filter(v => v.bodyType === bodyType);
-        }
-        if (transmission !== 'All') {
-            filtered = filtered.filter(v => v.transmission === transmission);
-        }
-        if (fuelType !== 'All') {
-            filtered = filtered.filter(v => v.fuelType === fuelType);
-        }
-        if (minPrice) {
-            filtered = filtered.filter(v => v.price >= parseInt(minPrice));
-        }
-        if (maxPrice) {
-            filtered = filtered.filter(v => v.price <= parseInt(maxPrice));
-        }
-        if (search) {
-            const query = search.toLowerCase();
-            filtered = filtered.filter(v =>
-                v.make.toLowerCase().includes(query) ||
-                v.model.toLowerCase().includes(query) ||
-                (v.description && v.description.toLowerCase().includes(query))
-            );
-        }
-
-        setTotal(filtered.length);
-        setTotalPages(Math.ceil(filtered.length / ITEMS_PER_PAGE));
-
-        const start = (page - 1) * ITEMS_PER_PAGE;
-        const paginated = filtered.slice(start, start + ITEMS_PER_PAGE);
-
-        setVehicles(paginated);
-        setLoading(false);
     };
 
     const clearFilters = () => {

@@ -22,14 +22,14 @@ const brands = [
 
 export const SpinningWheel: React.FC = () => {
     return (
-        <div className="relative w-full h-full min-h-[500px] flex items-center justify-center overflow-hidden">
+        <div className="relative w-full h-full flex items-center justify-center">
             {/* Background Gradients */}
             <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[var(--color-accent)]/10 rounded-full blur-[100px]" />
             </div>
 
             {/* Main Rotating Container - Forced Aspect Square for Perfect Circle */}
-            <div className="relative w-[500px] h-[500px] flex items-center justify-center">
+            <div className="relative w-[480px] h-[480px] flex items-center justify-center">
 
                 {/* Ripple Circles */}
                 {[1, 2, 3].map((i) => (

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDatabase } from '@/lib/mongodb';
-import { Vehicle } from '@/lib/types';
-import { ObjectId } from 'mongodb';
+import { connectToDB } from '@/lib/mongoose';
+import Vehicle from '@/models/Vehicle';
+import mongoose from 'mongoose';
 
 export async function GET(
     request: NextRequest,
@@ -10,18 +10,17 @@ export async function GET(
     try {
         const { id } = await params;
 
-        if (!ObjectId.isValid(id)) {
+        if (!mongoose.isValidObjectId(id)) {
             return NextResponse.json(
                 { error: 'Invalid vehicle ID' },
                 { status: 400 }
             );
         }
 
-        const db = await getDatabase();
-        const collection = db.collection<Vehicle>('vehicles');
+        await connectToDB();
 
         // Get the source vehicle to get make and bodyType
-        const sourceVehicle = await collection.findOne({ _id: new ObjectId(id) });
+        const sourceVehicle = await Vehicle.findById(id);
 
         if (!sourceVehicle) {
             return NextResponse.json(
@@ -31,17 +30,14 @@ export async function GET(
         }
 
         // Find related vehicles (same make or bodyType, excluding the source vehicle)
-        const vehicles = await collection
-            .find({
-                $or: [
-                    { make: sourceVehicle.make },
-                    { bodyType: sourceVehicle.bodyType },
-                ],
-                _id: { $ne: new ObjectId(id) },
-                isAvailable: true,
-            })
-            .limit(4)
-            .toArray();
+        const vehicles = await Vehicle.find({
+            $or: [
+                { make: sourceVehicle.make },
+                { bodyType: sourceVehicle.bodyType },
+            ],
+            _id: { $ne: id },
+            isAvailable: true,
+        }).limit(4);
 
         return NextResponse.json(vehicles);
     } catch (error) {

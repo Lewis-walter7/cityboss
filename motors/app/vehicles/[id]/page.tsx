@@ -1,32 +1,38 @@
 import React from 'react';
 import Link from 'next/link';
-import { getDatabase } from '@/lib/mongodb';
-import { Vehicle } from '@/lib/types';
-import { ObjectId } from 'mongodb';
+import { connectToDB } from '@/lib/mongoose';
+import Vehicle from '@/models/Vehicle';
+import mongoose from 'mongoose';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/Button';
 import { formatPrice, formatMileage } from '@/lib/utils';
-import { IoSpeedometer, IoColorPalette, IoCog, IoFlash, IoShield } from 'react-icons/io5';
+import { IoSpeedometer, IoColorPalette, IoCog, IoFlash, IoShield, IoLogoWhatsapp, IoCall } from 'react-icons/io5';
 import { Metadata } from 'next';
 import Image from 'next/image';
+import { VehicleGallery } from '@/components/ui/VehicleGallery';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
     const { id } = await params;
 
     try {
-        const db = await getDatabase();
-        const vehicle = await db.collection<Vehicle>('vehicles').findOne({ _id: new ObjectId(id) });
+        await connectToDB();
+
+        if (!mongoose.isValidObjectId(id)) {
+            return { title: 'Vehicle Not Found' };
+        }
+
+        const vehicle = await Vehicle.findById(id);
 
         if (!vehicle) {
             return { title: 'Vehicle Not Found' };
         }
 
         return {
-            title: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
+            title: `${vehicle.year} ${vehicle.make} ${vehicle.vehicleModel}`,
             description: vehicle.description,
             openGraph: {
-                title: `${vehicle.year} ${vehicle.make} ${vehicle.model} - ${formatPrice(vehicle.price)}`,
+                title: `${vehicle.year} ${vehicle.make} ${vehicle.vehicleModel} - ${formatPrice(vehicle.price)}`,
                 description: vehicle.description,
                 images: vehicle.images && vehicle.images.length > 0 ? [vehicle.images[0]] : [],
             },
@@ -39,8 +45,12 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function VehicleDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
 
-    const db = await getDatabase();
-    const vehicle = await db.collection<Vehicle>('vehicles').findOne({ _id: new ObjectId(id) });
+    await connectToDB();
+
+    let vehicle = null;
+    if (mongoose.isValidObjectId(id)) {
+        vehicle = await Vehicle.findById(id);
+    }
 
     if (!vehicle) {
         return (
@@ -74,11 +84,11 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
         <>
             <Navbar />
             <main className="min-h-screen pt-32 pb-16">
-                <div className="container">
+                <div className="container mx-auto px-6 lg:px-8 max-w-7xl">
                     {/* Header */}
                     <div className="mb-8">
                         <h1 className="heading-2 mb-2">
-                            {vehicle.year} {vehicle.make} {vehicle.model}
+                            {vehicle.year} {vehicle.make} {vehicle.vehicleModel}
                         </h1>
                         <div className="flex items-center gap-4 text-[var(--color-silver)]">
                             <span>{vehicle.bodyType}</span>
@@ -89,40 +99,13 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* Main Content */}
-                        <div className="lg:col-span-2 space-y-8">
+                        <div className="lg:col-span-2 space-y-8 pl-4 lg:pl-0">
                             {/* Image Gallery */}
                             <div className="rounded-xl overflow-hidden">
-                                {vehicle.images && vehicle.images.length > 0 ? (
-                                    <div className="grid grid-cols-1 gap-4">
-                                        <div className="relative h-[500px]">
-                                            <Image
-                                                src={vehicle.images[0]}
-                                                alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
-                                                fill
-                                                className="object-cover"
-                                                priority
-                                            />
-                                        </div>
-                                        {vehicle.images.length > 1 && (
-                                            <div className="grid grid-cols-3 gap-4">
-                                                {vehicle.images.slice(1, 4).map((img, i) => (
-                                                    <div key={i} className="relative h-40">
-                                                        <Image
-                                                            src={img}
-                                                            alt={`${vehicle.make} ${vehicle.model} ${i + 2}`}
-                                                            fill
-                                                            className="object-cover rounded-lg"
-                                                        />
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="h-[500px] bg-[var(--color-gunmetal)] flex items-center justify-center rounded-xl">
-                                        <span className="text-[var(--color-silver)]">No Images Available</span>
-                                    </div>
-                                )}
+                                <VehicleGallery
+                                    images={vehicle.images || []}
+                                    title={`${vehicle.year} ${vehicle.make} ${vehicle.vehicleModel}`}
+                                />
                             </div>
 
                             {/* Specs */}
@@ -196,20 +179,25 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
                                 </div>
 
                                 <div className="space-y-4 mb-6">
-                                    <Link href="/contact">
-                                        <Button className="w-full" size="lg">
-                                            Contact Us
+                                    <Link href={`https://wa.me/254713111106?text=Hi, I am interested in the ${vehicle.make} ${vehicle.vehicleModel}`} target="_blank">
+                                        <Button className="w-full bg-[#25D366] hover:bg-[#128C7E] mb-2 text-white flex items-center justify-center gap-2 rounded-xl" size="lg">
+                                            <IoLogoWhatsapp size={20} />
+                                            Enquire via Whatsapp
                                         </Button>
                                     </Link>
-                                    <Button className="w-full" size="lg" variant="secondary">
-                                        Schedule Test Drive
-                                    </Button>
+                                    <Link href="tel:+254713111106">
+                                        <Button className="w-full bg-black rounded-xl hover:bg-black/80 flex items-center justify-center gap-2" size="lg" variant="secondary">
+                                            <IoCall size={20} />
+                                            Call Now
+                                        </Button>
+                                    </Link>
                                 </div>
 
                                 <div className="text-sm text-[var(--color-silver)] space-y-2">
-                                    <p>📞 Call: +1 (555) 123-4567</p>
-                                    <p>✉️ Email: info@citybossmotors.com</p>
-                                    <p>📍 123 Auto Drive, City, State</p>
+                                    <p>📞 +254 713 111106</p>
+                                    <p>✉️ info@citybossmotors.co.ke</p>
+                                    <p>📍 Ridgeway Astro Petro Station, <br />
+                                        Kiambu Road, Kiambu, Kenya</p>
                                 </div>
                             </div>
                         </div>

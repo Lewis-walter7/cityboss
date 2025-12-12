@@ -9,7 +9,7 @@ import { IoArrowForward, IoTrendingUp, IoShieldCheckmark, IoSpeedometer } from '
 
 export const NewHero: React.FC = () => {
     return (
-        <section className="relative min-h-screen flex items-center overflow-hidden bg-[var(--color-background)] pt-20">
+        <section className="relative min-h-[calc(100vh-6rem)] flex items-center overflow-hidden bg-[var(--color-background)] pt-24 pb-12">
             {/* Background Gradients */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[var(--color-accent)] opacity-5 rounded-full blur-[120px]" />
@@ -21,26 +21,26 @@ export const NewHero: React.FC = () => {
 
                     {/* Left Side: Content (Cols 5) */}
                     <motion.div
-                        className="lg:col-span-5"
+                        className="lg:col-span-5 flex flex-col justify-center"
                         initial={{ opacity: 0, x: -50 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.8, ease: "easeOut" }}
                     >
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-sm">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-6 backdrop-blur-sm self-start">
                             <span className="w-2 h-2 rounded-full bg-[var(--color-accent)] animate-pulse" />
                             <span className="text-xs font-medium tracking-wide text-[var(--color-silver)] uppercase">2025 Inventory Arriving</span>
                         </div>
 
-                        <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] mb-8 tracking-tight">
+                        <h1 className="text-5xl md:text-3xl lg:text-5xl font-bold leading-[1.1] mb-4 tracking-tight">
                             City Boss <br />
                             <span className="text-gradient">Motors</span>
                         </h1>
 
-                        <p className="text-lg text-[var(--color-silver)] mb-10 max-w-lg leading-relaxed font-light">
+                        <p className="text-lg text-[var(--color-silver)] mb-4 max-w-lg leading-relaxed font-light">
                             Redefining the car buying experience. From luxury sedans to powerful 4x4s, find your perfect match with our AI-powered selection process.
                         </p>
 
-                        <div className="flex flex-col sm:flex-row gap-4 mb-12">
+                        <div className="flex flex-col sm:flex-row gap-4 mb-4">
                             <Link href="/listings">
                                 <Button size="lg" className="w-full sm:w-auto min-w-[160px] group shadow-[0_0_20px_rgba(0,212,255,0.2)]">
                                     Explore Cars
@@ -55,12 +55,12 @@ export const NewHero: React.FC = () => {
                         </div>
 
                         {/* Trending / Stats Area */}
-                        <div className="bg-[#111]/50 backdrop-blur-md rounded-2xl p-6 border border-white/5">
-                            <div className="flex justify-between items-center mb-4">
+                        <div className="bg-[#111]/50 backdrop-blur-md rounded-2xl p-4 border border-white/5">
+                            <div className="flex justify-between items-center mb-2">
                                 <span className="text-sm font-semibold text-white">Trending Now</span>
-                                <span className="text-xs text-[var(--color-accent)]">View Report</span>
+                                <span className="text-xs text-[var(--color-accent)] cursor-pointer hover:underline">View Report</span>
                             </div>
-                            <div className="space-y-4">
+                            <div className="space-y-2">
                                 <div className="flex items-center justify-between group cursor-pointer">
                                     <div className="flex items-center gap-3">
                                         <div className="w-2 h-2 rounded-full bg-white/20 group-hover:bg-[var(--color-accent)] transition-colors" />
@@ -81,7 +81,7 @@ export const NewHero: React.FC = () => {
                     </motion.div>
 
                     {/* Right Side: Spinning Animation (Cols 7) */}
-                    <div className="lg:col-span-7 h-[600px] flex items-center justify-center relative">
+                    <div className="lg:col-span-7 h-[500px] flex items-center justify-center relative mt-8 lg:mt-0">
                         <SpinningWheel />
                     </div>
                 </div>

@@ -38,14 +38,19 @@ export const Navbar: React.FC = () => {
 
     return (
         <nav
-            className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${isScrolled ? 'glass-strong shadow-lg py-4' : 'bg-transparent py-6'
+            className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${isScrolled ? 'bg-[#0f1012]/80 backdrop-blur-sm shadow-lg py-4' : 'bg-transparent py-6'
                 }`}
         >
             <div className="container mx-auto px-6">
                 <div className="flex items-center justify-between">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2 group">
-                        <IoCar className="text-[var(--color-accent)] text-3xl group-hover:scale-110 transition-transform duration-300" />
+                        {/* <IoCar className="text-[var(--color-accent)] text-3xl group-hover:scale-110 transition-transform duration-300" /> */}
+                        <img
+                            src="/citybosslogo.png"
+                            alt="City Boss Motors"
+                            className="h-10 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
+                        />
                         <span className="text-xl font-bold">
                             City Boss <span className="text-gradient">Motors</span>
                         </span>
@@ -58,8 +63,8 @@ export const Navbar: React.FC = () => {
                                 key={link.href}
                                 href={link.href}
                                 className={`text-sm font-medium transition-colors hover:text-[var(--color-accent)] ${pathname === link.href
-                                        ? 'text-[var(--color-accent)]'
-                                        : 'text-white'
+                                    ? 'text-[var(--color-accent)]'
+                                    : 'text-white'
                                     }`}
                             >
                                 {link.label}
@@ -99,8 +104,8 @@ export const Navbar: React.FC = () => {
                                         href={link.href}
                                         onClick={() => setIsOpen(false)}
                                         className={`text-lg font-medium transition-colors hover:text-[var(--color-accent)] block ${pathname === link.href
-                                                ? 'text-[var(--color-accent)]'
-                                                : 'text-white'
+                                            ? 'text-[var(--color-accent)]'
+                                            : 'text-white'
                                             }`}
                                     >
                                         {link.label}

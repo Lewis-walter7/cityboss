@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDatabase } from '@/lib/mongodb';
-import { Vehicle } from '@/lib/types';
-import { ObjectId } from 'mongodb';
+import { connectToDB } from '@/lib/mongoose';
+import Vehicle from '@/models/Vehicle';
+import mongoose from 'mongoose';
 
 export async function GET(
     request: NextRequest,
@@ -10,17 +10,16 @@ export async function GET(
     try {
         const { id } = await params;
 
-        if (!ObjectId.isValid(id)) {
+        if (!mongoose.isValidObjectId(id)) {
             return NextResponse.json(
                 { error: 'Invalid vehicle ID' },
                 { status: 400 }
             );
         }
 
-        const db = await getDatabase();
-        const collection = db.collection<Vehicle>('vehicles');
+        await connectToDB();
 
-        const vehicle = await collection.findOne({ _id: new ObjectId(id) });
+        const vehicle = await Vehicle.findById(id);
 
         if (!vehicle) {
             return NextResponse.json(

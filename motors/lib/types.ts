@@ -1,9 +1,7 @@
-import { ObjectId } from 'mongodb';
-
 export interface Vehicle {
-    _id?: ObjectId;
+    _id?: string;
     make: string;
-    model: string;
+    vehicleModel: string;
     year: number;
     price: number;
     mileage: number;
@@ -26,7 +24,7 @@ export interface Vehicle {
 
 export interface VehicleFilters {
     make?: string;
-    model?: string;
+    vehicleModel?: string;
     bodyType?: string;
     minYear?: number;
     maxYear?: number;
@@ -59,7 +57,7 @@ export interface ContactFormData {
 
 export interface SellCarFormData {
     make: string;
-    model: string;
+    vehicleModel: string;
     year: number;
     mileage: number;
     price: number;

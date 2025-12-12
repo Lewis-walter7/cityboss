@@ -1,17 +1,14 @@
 import { NextResponse } from 'next/server';
-import { getDatabase } from '@/lib/mongodb';
-import { Vehicle } from '@/lib/types';
+import { connectToDB } from '@/lib/mongoose';
+import Vehicle from '@/models/Vehicle';
 
 export async function GET() {
     try {
-        const db = await getDatabase();
-        const collection = db.collection<Vehicle>('vehicles');
+        await connectToDB();
 
-        const vehicles = await collection
-            .find({ isFeatured: true, isAvailable: true })
+        const vehicles = await Vehicle.find({ isFeatured: true, isAvailable: true })
             .sort({ createdAt: -1 })
-            .limit(6)
-            .toArray();
+            .limit(6);
 
         return NextResponse.json(vehicles);
     } catch (error) {

@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { IoLogoFacebook, IoLogoTwitter, IoLogoInstagram, IoLogoLinkedin, IoCar, IoMail, IoCall, IoLocation } from 'react-icons/io5';
+import { IoLogoFacebook, IoLogoInstagram, IoCar, IoCall, IoLocation, IoLogoWhatsapp } from 'react-icons/io5';
 
 export const Footer: React.FC = () => {
     const currentYear = new Date().getFullYear();
@@ -15,9 +15,7 @@ export const Footer: React.FC = () => {
 
     const socialLinks = [
         { icon: IoLogoFacebook, href: '#', label: 'Facebook' },
-        { icon: IoLogoTwitter, href: '#', label: 'Twitter' },
         { icon: IoLogoInstagram, href: '#', label: 'Instagram' },
-        { icon: IoLogoLinkedin, href: '#', label: 'LinkedIn' },
     ];
 
     return (
@@ -36,18 +34,33 @@ export const Footer: React.FC = () => {
                             Your trusted partner for premium pre-owned vehicles. Find your dream car with confidence.
                         </p>
                         <div className="flex gap-4">
-                            {socialLinks.map((social) => (
-                                <a
-                                    key={social.label}
-                                    href={social.href}
-                                    className="text-[var(--color-silver)] hover:text-[var(--color-accent)] transition-colors"
-                                    aria-label={social.label}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                    <social.icon size={24} />
-                                </a>
-                            ))}
+                            <a
+                                href="https://www.facebook.com/citybossmotors"
+                                className="text-[var(--color-silver)] hover:text-[var(--color-accent)] transition-colors"
+                                aria-label="Facebook"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <IoLogoFacebook size={24} />
+                            </a>
+                            <a
+                                href="https://www.instagram.com/city_boss_motors/"
+                                className="text-[var(--color-silver)] hover:text-[var(--color-accent)] transition-colors"
+                                aria-label="Instagram"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <IoLogoInstagram size={24} />
+                            </a>
+                            <a
+                                href="https://wa.me/+254713111106"
+                                className="text-[var(--color-silver)] hover:text-[var(--color-accent)] transition-colors"
+                                aria-label="WhatsApp"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <IoLogoWhatsapp size={24} />
+                            </a>
                         </div>
                     </div>
 
@@ -74,15 +87,19 @@ export const Footer: React.FC = () => {
                         <ul className="space-y-3">
                             <li className="flex items-center gap-3 text-[var(--color-silver)] text-sm">
                                 <IoCall className="text-[var(--color-accent)]" size={18} />
-                                <span>+1 (555) 123-4567</span>
+                                <a href="tel:+254713111106" className="hover:text-[var(--color-accent)] transition-colors">
+                                    +254 713 111106
+                                </a>
                             </li>
                             <li className="flex items-center gap-3 text-[var(--color-silver)] text-sm">
-                                <IoMail className="text-[var(--color-accent)]" size={18} />
-                                <span>info@citybossmotors.com</span>
+                                <IoLogoWhatsapp className="text-[var(--color-accent)]" size={18} />
+                                <a href="https://wa.me/+254713111106" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--color-accent)] transition-colors">
+                                    WhatsApp Us
+                                </a>
                             </li>
                             <li className="flex items-start gap-3 text-[var(--color-silver)] text-sm">
                                 <IoLocation className="text-[var(--color-accent)] mt-1" size={18} />
-                                <span>123 Auto Drive<br />City, State 12345</span>
+                                <span>Ridgeway Astro Petro Station,<br />Kiambu Road, Kiambu, Kenya</span>
                             </li>
                         </ul>
                     </div>

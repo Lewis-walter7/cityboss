@@ -1,0 +1,23 @@
+
+import dns from 'node:dns';
+
+// Force IP family 4 for all DNS lookups to avoid IPv6 timeouts
+const originalLookup = dns.lookup;
+
+// @ts-ignore
+dns.lookup = (hostname, options, callback) => {
+  if (typeof options === 'function') {
+    callback = options;
+    options = {};
+  } else if (!options) {
+      options = {};
+  }
+  
+  if (typeof options === 'object') {
+      options.family = 4;
+  }
+  
+  return originalLookup(hostname, options, callback);
+};
+
+console.log('  [Network] IPv4 Only Mode Enabled');
