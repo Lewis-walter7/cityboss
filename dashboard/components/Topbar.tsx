@@ -1,24 +1,42 @@
 
 'use client';
 
-import { FaRegBell, FaSearch } from 'react-icons/fa';
+import { FaRegBell, FaSearch, FaBars } from 'react-icons/fa';
 
-export default function Topbar({ user, project }: { user: any, project?: string }) {
+interface TopbarProps {
+    user: any;
+    project?: string;
+    setIsMobileMenuOpen?: (open: boolean) => void;
+}
+
+export default function Topbar({ user, project, setIsMobileMenuOpen }: TopbarProps) {
     const isRealEstate = project === 'realestate';
 
     return (
-        <header className="h-20 flex items-center justify-between px-8 sticky top-0 z-40 transition-all duration-300">
+        <header className="h-16 md:h-20 flex items-center justify-between px-4 md:px-8 sticky top-0 z-40 transition-all duration-300">
             {/* Glass background applied via absolute to allow content to sit on top nicely */}
             <div className="absolute inset-0 bg-gray-950/80 backdrop-blur-md border-b border-white/5 z-0"></div>
 
-            <div className="relative z-10 flex items-center">
-                <h2 className="text-xl font-bold text-white capitalize tracking-tight">
+            <div className="relative z-10 flex items-center gap-3">
+                {/* Hamburger Menu Button - Mobile Only */}
+                <button
+                    onClick={() => {
+                        console.log('Hamburger clicked');
+                        setIsMobileMenuOpen?.(true);
+                    }}
+                    className="lg:hidden p-2 text-white bg-blue-600 hover:bg-blue-500 rounded-lg transition-colors"
+                    type="button"
+                >
+                    <FaBars className="w-5 h-5" />
+                </button>
+
+                <h2 className="text-lg md:text-xl font-bold text-white capitalize tracking-tight">
                     <span className={isRealEstate ? "text-emerald-400" : "text-blue-400"}>{project}</span>
-                    <span className="text-gray-500 ml-2 font-medium">Dashboard</span>
+                    <span className="text-gray-500 ml-2 font-medium hidden sm:inline">Dashboard</span>
                 </h2>
             </div>
 
-            <div className="relative z-10 flex items-center gap-6">
+            <div className="relative z-10 flex items-center gap-3 md:gap-6">
                 {/* Search Bar */}
                 <div className="relative hidden md:block">
                     <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4" />

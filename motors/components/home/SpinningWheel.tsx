@@ -1,10 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
     SiBmw, SiMercedes, SiPorsche,
-    SiToyota, SiNissan, SiSubaru, SiMitsubishi, SiMazda, SiHonda
+    SiToyota, SiNissan, SiSubaru, SiMitsubishi, SiMazda
 } from 'react-icons/si';
 import { IoCarSport, IoStar } from 'react-icons/io5';
 
@@ -21,6 +21,25 @@ const brands = [
 ];
 
 export const SpinningWheel: React.FC = () => {
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    // Responsive values based on screen size
+    const containerSize = isMobile ? 320 : 480;
+    const center = containerSize / 2;
+    const radius = isMobile ? 140 : 210;
+    const logoSize = isMobile ? 40 : 56;
+    const logoHalfSize = logoSize / 2;
+
     return (
         <div className="relative w-full h-full flex items-center justify-center">
             {/* Background Gradients */}
@@ -29,14 +48,17 @@ export const SpinningWheel: React.FC = () => {
             </div>
 
             {/* Main Rotating Container - Forced Aspect Square for Perfect Circle */}
-            <div className="relative w-[480px] h-[480px] flex items-center justify-center">
+            <div
+                className="relative flex items-center justify-center"
+                style={{ width: `${containerSize}px`, height: `${containerSize}px` }}
+            >
 
                 {/* Ripple Circles */}
                 {[1, 2, 3].map((i) => (
                     <motion.div
                         key={i}
                         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-2 border-[var(--color-accent)]/40 rounded-full"
-                        style={{ width: `${i * 35}%`, height: `${i * 35}%` }} // Percentages of the 500px square
+                        style={{ width: `${i * 35}%`, height: `${i * 35}%` }}
                         animate={{
                             scale: [1, 1.05, 1],
                             opacity: [0.4, 0.8, 0.4],
@@ -53,7 +75,11 @@ export const SpinningWheel: React.FC = () => {
 
                 {/* Central Hub */}
                 <motion.div
-                    className="absolute z-20 w-24 h-24 rounded-full bg-[#111] border-2 border-[var(--color-accent)] shadow-[0_0_40px_rgba(255,85,0,0.4)] flex items-center justify-center"
+                    className="absolute z-20 rounded-full bg-[#111] border-2 border-[var(--color-accent)] shadow-[0_0_40px_rgba(255,85,0,0.4)] flex items-center justify-center"
+                    style={{
+                        width: isMobile ? '64px' : '96px',
+                        height: isMobile ? '64px' : '96px'
+                    }}
                     animate={{
                         boxShadow: [
                             "0 0 20px rgba(255, 85, 0, 0.2)",
@@ -63,34 +89,40 @@ export const SpinningWheel: React.FC = () => {
                     }}
                     transition={{ duration: 3, repeat: Infinity }}
                 >
-                    <IoCarSport className="text-4xl text-[var(--color-accent)]" />
+                    <IoCarSport className={isMobile ? 'text-2xl' : 'text-4xl'} style={{ color: 'var(--color-accent)' }} />
                 </motion.div>
 
                 {/* Orbiting Elements Container */}
                 <div className="absolute inset-0 animate-[spin_60s_linear_infinite]">
                     {brands.map((brand, index) => {
                         const angle = (index / brands.length) * 2 * Math.PI;
-                        const radius = 220; // Fixed pixel radius for ensuring circular path relative to 500px container
-                        const top = 250 + Math.sin(angle) * radius; // 250 is center of 500px
-                        const left = 250 + Math.cos(angle) * radius;
-
+                        const top = center + Math.sin(angle) * radius;
+                        const left = center + Math.cos(angle) * radius;
                         const isLuxury = brand.tier === 'luxury';
 
                         return (
                             <motion.div
                                 key={index}
-                                className={`absolute w-14 h-14 -ml-7 -mt-7 rounded-2xl flex items-center justify-center shadow-lg cursor-pointer transition-all duration-300 group ${isLuxury
+                                className={`absolute rounded-2xl flex items-center justify-center shadow-lg cursor-pointer transition-all duration-300 group ${isLuxury
                                     ? 'bg-black/80 border border-[var(--color-accent)] shadow-[0_0_15px_rgba(255,85,0,0.3)]'
                                     : 'bg-[#1a1a1a]/90 border border-white/10 hover:border-white/30'
                                     }`}
-                                style={{ top: `${top}px`, left: `${left}px` }}
+                                style={{
+                                    width: `${logoSize}px`,
+                                    height: `${logoSize}px`,
+                                    top: `${top}px`,
+                                    left: `${left}px`,
+                                    marginLeft: `-${logoHalfSize}px`,
+                                    marginTop: `-${logoHalfSize}px`,
+                                }}
                                 animate={{ rotate: -360 }}
                                 transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
                                 whileHover={{ scale: 1.2 }}
                             >
                                 <brand.icon
-                                    className={`text-2xl transition-colors ${isLuxury ? 'text-[var(--color-accent)]' : 'text-[#888] group-hover:text-white'
+                                    className={`transition-colors ${isLuxury ? 'text-[var(--color-accent)]' : 'text-[#888] group-hover:text-white'
                                         }`}
+                                    style={{ fontSize: isMobile ? '20px' : '24px' }}
                                 />
                             </motion.div>
                         );

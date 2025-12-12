@@ -1,7 +1,6 @@
 
 import { getAdminSession } from "@/lib/auth";
-import Sidebar from "@/components/Sidebar";
-import Topbar from "@/components/Topbar";
+import DashboardLayout from "@/components/DashboardLayout";
 import { cookies } from 'next/headers';
 
 // admins page needs layout wrapper because it's not under /motors or /realestate
@@ -14,17 +13,11 @@ export default async function AdminsLayout({
 }>) {
     const session = await getAdminSession();
     const cookieStore = await cookies();
-    const project = cookieStore.get('project_mode')?.value || 'motors'; // Default to motors if unknown
+    const project = (cookieStore.get('project_mode')?.value || 'motors') as 'motors' | 'realestate';
 
     return (
-        <div className="flex h-screen premium-bg-mesh text-white">
-            <Sidebar user={session} project={project} />
-            <div className="flex-1 flex flex-col min-w-0 relative">
-                <Topbar user={session} project={project} />
-                <main className="flex-1 p-8 overflow-y-auto relative z-10">
-                    {children}
-                </main>
-            </div>
-        </div>
+        <DashboardLayout user={session} project={project}>
+            {children}
+        </DashboardLayout>
     );
 }

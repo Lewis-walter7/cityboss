@@ -1,7 +1,6 @@
 
 import { getAdminSession } from "@/lib/auth";
-import Sidebar from "@/components/Sidebar";
-import Topbar from "@/components/Topbar";
+import DashboardLayout from "@/components/DashboardLayout";
 
 export default async function RealEstateLayout({
     children,
@@ -11,14 +10,8 @@ export default async function RealEstateLayout({
     const session = await getAdminSession();
 
     return (
-        <div className="flex h-screen premium-bg-mesh text-white">
-            <Sidebar user={session} project="realestate" />
-            <div className="flex-1 flex flex-col min-w-0 relative">
-                <Topbar user={session} project="realestate" />
-                <main className="flex-1 p-8 overflow-y-auto relative z-10">
-                    {children}
-                </main>
-            </div>
-        </div>
+        <DashboardLayout user={session} project="realestate">
+            {children}
+        </DashboardLayout>
     );
 }

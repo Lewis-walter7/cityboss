@@ -60,15 +60,15 @@ export default function VehiclesPage() {
 
     return (
         <div className="max-w-7xl mx-auto">
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex flex-wrap justify-between items-center gap-4 mb-6 md:mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-white">Vehicles Inventory</h1>
-                    <p className="text-gray-400 mt-1">Manage listing, pricing and availability.</p>
+                    <h1 className="text-2xl md:text-3xl font-bold text-white">Vehicles Inventory</h1>
+                    <p className="text-sm md:text-base text-gray-400 mt-1">Manage listing, pricing and availability.</p>
                 </div>
 
                 <Link
                     href="/motors/vehicles/new"
-                    className="flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-all shadow-lg hover:shadow-blue-500/20 font-medium"
+                    className="flex items-center justify-center w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-all shadow-lg hover:shadow-blue-500/20 font-medium"
                 >
                     <FaPlus className="mr-2" />
                     Add Vehicle
