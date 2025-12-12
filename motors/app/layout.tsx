@@ -42,10 +42,6 @@ export default function RootLayout({
       <body className="antialiased">
         {children}
       </body>
-      <script
-        type="module"
-        src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"
-      ></script>
     </html>
   );
 }
