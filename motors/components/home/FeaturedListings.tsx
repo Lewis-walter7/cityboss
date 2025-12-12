@@ -17,7 +17,7 @@ const cars: CarModel[] = [
         name: 'M5 Competition',
         brand: 'BMW',
         year: '2018',
-        price: '$110,000',
+        price: 'KES 14,500,000',
         modelPath: '/models/2018_bmw_m5.glb'
     },
     {
@@ -25,7 +25,7 @@ const cars: CarModel[] = [
         name: 'G 63 AMG',
         brand: 'Mercedes-Benz',
         year: '2022',
-        price: '$180,000',
+        price: 'KES 32,000,000',
         modelPath: '/models/mercedes-benz_g-class_g63_amg.glb'
     },
     {
@@ -33,7 +33,7 @@ const cars: CarModel[] = [
         name: 'Prado',
         brand: 'Toyota',
         year: '2010',
-        price: '$45,000',
+        price: 'KES 4,200,000',
         modelPath: '/models/tayota_prado_2010_3d_model.glb'
     }
 ];

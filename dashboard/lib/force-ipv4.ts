@@ -9,14 +9,18 @@ dns.lookup = (hostname, options, callback) => {
   if (typeof options === 'function') {
     callback = options;
     options = {};
+  } else if (typeof options === 'number') {
+    options = { family: 4 };
   } else if (!options) {
-      options = {};
+    options = {};
   }
-  
-  if (typeof options === 'object') {
-      options.family = 4;
+
+  if (typeof options === 'object' && options !== null) {
+    // @ts-ignore
+    options.family = 4;
   }
-  
+
+  // @ts-ignore
   return originalLookup(hostname, options, callback);
 };
 
