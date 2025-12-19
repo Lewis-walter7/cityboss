@@ -1,5 +1,4 @@
 import React from 'react';
-import { useParams } from 'next/navigation';
 import { Bed, Bath, Maximize, MapPin, ChevronLeft, Calendar, Shield, Share2, Heart, Mail } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
@@ -10,7 +9,7 @@ import Property from '@/models/Property';
 import { notFound } from 'next/navigation';
 
 interface Props {
-    params: { id: string };
+    params: Promise<{ id: string }>;
 }
 
 export default async function PropertyDetailPage({ params }: Props) {

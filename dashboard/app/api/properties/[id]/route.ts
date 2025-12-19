@@ -6,16 +6,17 @@ import { getAdminSession } from '@/lib/auth';
 
 export async function GET(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         await dbConnect();
+        const { id } = await params;
         const user = await getAdminSession();
         if (!user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const property = await Property.findById(params.id);
+        const property = await Property.findById(id);
         if (!property) {
             return NextResponse.json({ error: 'Property not found' }, { status: 404 });
         }
@@ -29,17 +30,18 @@ export async function GET(
 
 export async function PATCH(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         await dbConnect();
+        const { id } = await params;
         const user = await getAdminSession();
         if (!user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         const body = await request.json();
-        const property = await Property.findByIdAndUpdate(params.id, body, { new: true });
+        const property = await Property.findByIdAndUpdate(id, body, { new: true });
 
         if (!property) {
             return NextResponse.json({ error: 'Property not found' }, { status: 404 });
@@ -54,16 +56,17 @@ export async function PATCH(
 
 export async function DELETE(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         await dbConnect();
+        const { id } = await params;
         const user = await getAdminSession();
         if (!user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const property = await Property.findByIdAndDelete(params.id);
+        const property = await Property.findByIdAndDelete(id);
         if (!property) {
             return NextResponse.json({ error: 'Property not found' }, { status: 404 });
         }
