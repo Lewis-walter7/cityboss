@@ -75,7 +75,7 @@ export interface Testimonial {
     rating: number;
     content: string;
     date: string;
-    avatar: string;
+    avatar?: string;
     role: string;
 }
 

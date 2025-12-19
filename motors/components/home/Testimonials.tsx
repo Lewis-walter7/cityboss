@@ -3,8 +3,16 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { IoStar } from 'react-icons/io5';
-import Image from 'next/image';
 import { Testimonial } from '@/lib/types';
+
+const getInitials = (name: string) => {
+    return name
+        .split(' ')
+        .map(word => word[0])
+        .join('')
+        .substring(0, 2)
+        .toUpperCase();
+};
 
 const testimonials: Testimonial[] = [
     {
@@ -13,7 +21,6 @@ const testimonials: Testimonial[] = [
         rating: 5,
         content: 'Absolutely amazing experience! Found my dream car and the team made everything so easy. Highly recommend City Boss Motors!',
         date: '2024-11-15',
-        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&auto=format&fit=crop',
         role: 'Verified Buyer'
     },
     {
@@ -22,7 +29,6 @@ const testimonials: Testimonial[] = [
         rating: 5,
         content: 'Professional service from start to finish. They went above and beyond to find the perfect SUV for my family.',
         date: '2024-11-08',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&auto=format&fit=crop',
         role: 'Business Owner'
     },
     {
@@ -31,7 +37,6 @@ const testimonials: Testimonial[] = [
         rating: 5,
         content: 'The quality of vehicles here is unmatched. Bought a BMW X5 and it\'s in pristine condition. Will definitely be back!',
         date: '2024-10-28',
-        avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&auto=format&fit=crop',
         role: 'Automotive Enthusiast'
     }
 ];
@@ -79,13 +84,10 @@ export const Testimonials: React.FC = () => {
                             </p>
 
                             <div className="flex items-center gap-4 border-t border-white/5 pt-6 mt-auto">
-                                <div className="w-12 h-12 rounded-full overflow-hidden border border-white/10 relative">
-                                    <Image
-                                        src={testimonial.avatar}
-                                        alt={testimonial.name}
-                                        fill
-                                        className="object-cover"
-                                    />
+                                <div className="w-12 h-12 rounded-full overflow-hidden border border-white/10 relative flex items-center justify-center bg-gradient-to-br from-[var(--color-accent)] to-purple-600 shadow-lg">
+                                    <span className="text-white font-bold text-lg tracking-wide">
+                                        {getInitials(testimonial.name)}
+                                    </span>
                                 </div>
                                 <div>
                                     <h4 className="font-semibold text-white tracking-wide">{testimonial.name}</h4>

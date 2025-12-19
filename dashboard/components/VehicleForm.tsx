@@ -108,7 +108,7 @@ export default function VehicleForm({ initialData, isEditMode = false }: Vehicle
             const compressedFiles = await Promise.all(
                 files.map(async (file) => {
                     if (file.size <= 60 * 1024) return file;
-                    const options = { maxSizeMB: 0.1, maxWidthOrHeight: 1920, useWebWorker: true };
+                    const options = { maxSizeMB: 0.35, maxWidthOrHeight: 1920, useWebWorker: true };
                     try {
                         const compressedFile = await imageCompression(file, options);
                         return compressedFile.size < file.size ? compressedFile : file;
