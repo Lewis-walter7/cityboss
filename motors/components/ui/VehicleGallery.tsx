@@ -35,12 +35,12 @@ export function VehicleGallery({ images, title }: VehicleGalleryProps) {
     return (
         <div className="space-y-4">
             {/* Main Image */}
-            <div className="relative h-[500px] rounded-xl overflow-hidden group">
+            <div className="relative h-[500px] rounded-xl overflow-hidden group bg-black">
                 <Image
                     src={displayImages[mainImageIndex]}
                     alt={`${title} - Main View`}
                     fill
-                    className="object-cover transition-transform duration-500 hover:scale-105"
+                    className="object-contain transition-transform duration-500"
                     priority
                 />
 
@@ -69,8 +69,8 @@ export function VehicleGallery({ images, title }: VehicleGalleryProps) {
                             key={i}
                             onClick={() => setMainImageIndex(i)}
                             className={`relative h-20 rounded-lg overflow-hidden border-2 transition-all ${mainImageIndex === i
-                                    ? 'border-[var(--color-accent)] opacity-100 ring-2 ring-[var(--color-accent)]/50'
-                                    : 'border-transparent opacity-60 hover:opacity-100'
+                                ? 'border-[var(--color-accent)] opacity-100 ring-2 ring-[var(--color-accent)]/50'
+                                : 'border-transparent opacity-60 hover:opacity-100'
                                 }`}
                         >
                             <Image

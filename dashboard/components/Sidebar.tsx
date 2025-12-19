@@ -50,9 +50,21 @@ export default function Sidebar({ user, project = 'motors', isMobileMenuOpen, se
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [userMenuOpen]);
 
-    const handleSignOut = () => {
-        document.cookie = 'admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-        router.push('/login');
+    const handleSignOut = async () => {
+        try {
+            // Call the logout API to properly delete the httpOnly cookie
+            await fetch('/api/auth/logout', {
+                method: 'POST',
+                credentials: 'include', // Important: include cookies in request
+            });
+
+            // Redirect to login page
+            router.push('/login');
+        } catch (error) {
+            console.error('Logout failed:', error);
+            // Still redirect even if API call fails
+            router.push('/login');
+        }
     };
 
     const handleSwitchPortfolio = () => {

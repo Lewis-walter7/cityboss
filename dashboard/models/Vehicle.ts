@@ -22,6 +22,8 @@ export interface IVehicle extends Document {
     images: string[];
     isFeatured: boolean;
     isAvailable: boolean;
+    status: 'draft' | 'published';
+    lastEditedBy: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -48,6 +50,8 @@ const VehicleSchema = new Schema<IVehicle>(
         images: { type: [String], required: false },
         isFeatured: { type: Boolean, default: false },
         isAvailable: { type: Boolean, default: true },
+        status: { type: String, enum: ['draft', 'published'], default: 'published' },
+        lastEditedBy: { type: String, required: false },
     },
     {
         timestamps: true,

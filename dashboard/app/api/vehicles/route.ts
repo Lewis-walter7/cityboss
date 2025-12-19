@@ -12,7 +12,18 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const vehicles = await Vehicle.find({}).sort({ createdAt: -1 });
+        // Get status filter from query params
+        const { searchParams } = new URL(request.url);
+        const statusFilter = searchParams.get('status') || 'published'; // default to published
+
+        let query: any = {};
+        if (statusFilter === 'all') {
+            // no filter, show all
+        } else {
+            query.status = statusFilter;
+        }
+
+        const vehicles = await Vehicle.find(query).sort({ createdAt: -1 });
         return NextResponse.json(vehicles);
     } catch (error) {
         console.error("Error fetching vehicles:", error);
@@ -29,10 +40,29 @@ export async function POST(request: Request) {
         }
 
         const body = await request.json();
+        const { status = 'published', ...vehicleData } = body;
 
-        // Basic validation could go here
+        // Validation: If publishing, ensure required fields are present
+        if (status === 'published') {
+            const requiredFields = ['make', 'vehicleModel', 'year', 'price', 'mileage', 'images'];
+            for (const field of requiredFields) {
+                if (!vehicleData[field] || (field === 'images' && vehicleData[field].length < 4)) {
+                    return NextResponse.json({
+                        error: `Missing or invalid required field: ${field}`,
+                        field
+                    }, { status: 400 });
+                }
+            }
+        }
 
-        const newVehicle = await Vehicle.create(body);
+        // Add metadata
+        const vehicleWithMeta = {
+            ...vehicleData,
+            status,
+            lastEditedBy: user.email || user.id,
+        };
+
+        const newVehicle = await Vehicle.create(vehicleWithMeta);
         return NextResponse.json(newVehicle);
     } catch (error) {
         console.error("Error creating vehicle:", error);

@@ -10,12 +10,26 @@ export const ourFileRouter = {
     // Define as many FileRoutes as you like, each with a unique routeSlug
     vehicleImage: f({ image: { maxFileSize: "4MB", maxFileCount: 10 } })
         .middleware(async ({ req }) => {
-            const user = await getAdminSession();
-            if (!user) throw new UploadThingError("Unauthorized");
-            return { userId: String(user.id) };
+            try {
+                console.log("🔐 Attempting to get admin session for upload...");
+                const user = await getAdminSession();
+                console.log("👤 User session:", user ? "Found" : "Not found", user);
+
+                if (!user) {
+                    console.error("❌ No user session found - upload blocked");
+                    throw new UploadThingError("Unauthorized");
+                }
+
+                console.log("✅ Upload authorized for user:", user.id);
+                return { userId: String(user.id) };
+            } catch (error) {
+                console.error("🚨 Middleware error:", error);
+                throw error;
+            }
         })
         .onUploadComplete(async ({ metadata, file }) => {
-            return { uploadedBy: metadata.userId, url: file.url };
+            console.log("✅ Upload complete:", file.ufsUrl);
+            return { uploadedBy: metadata.userId, url: file.ufsUrl };
         }),
     propertyImage: f({ image: { maxFileSize: "8MB", maxFileCount: 10 } })
         .middleware(async ({ req }) => {
@@ -24,7 +38,7 @@ export const ourFileRouter = {
             return { userId: String(user.id) };
         })
         .onUploadComplete(async ({ metadata, file }) => {
-            return { uploadedBy: metadata.userId, url: file.url };
+            return { uploadedBy: metadata.userId, url: file.ufsUrl };
         }),
 } satisfies FileRouter;
 

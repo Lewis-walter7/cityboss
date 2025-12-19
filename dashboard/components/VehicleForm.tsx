@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { UploadButton } from "@/utils/uploadthing";
 import imageCompression from 'browser-image-compression';
@@ -21,7 +21,9 @@ interface VehicleFormProps {
 export default function VehicleForm({ initialData, isEditMode = false }: VehicleFormProps) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [savingDraft, setSavingDraft] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
+    const isDraft = initialData?.status === 'draft';
 
     // Image State
     const [files, setFiles] = useState<File[]>([]);
@@ -79,6 +81,66 @@ export default function VehicleForm({ initialData, isEditMode = false }: Vehicle
         }
     }, [initialData]);
 
+    // Clipboard paste handler
+    const handlePaste = useCallback((e: ClipboardEvent) => {
+        // Only handle paste when on Media step (Step 4)
+        if (currentStep !== 4) return;
+
+        const clipboardItems = e.clipboardData?.items;
+        if (!clipboardItems) return;
+
+        const imageFiles: File[] = [];
+
+        // Process clipboard items
+        for (let i = 0; i < clipboardItems.length; i++) {
+            const item = clipboardItems[i];
+
+            // Check if the item is an image
+            if (item.type.startsWith('image/')) {
+                const file = item.getAsFile();
+                if (file) {
+                    // Create a new File with a better name
+                    const timestamp = Date.now();
+                    const extension = file.type.split('/')[1] || 'png';
+                    const newFile = new File(
+                        [file],
+                        `pasted-image-${timestamp}.${extension}`,
+                        { type: file.type }
+                    );
+                    imageFiles.push(newFile);
+                }
+            }
+        }
+
+        // Add pasted images to files state
+        if (imageFiles.length > 0) {
+            setFiles(prev => [...prev, ...imageFiles]);
+
+            // Show feedback
+            const message = imageFiles.length === 1
+                ? '1 image pasted successfully!'
+                : `${imageFiles.length} images pasted successfully!`;
+
+            // Create a temporary toast notification
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 font-medium animate-fade-in';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+    }, [currentStep]);
+
+    // Add paste event listener
+    useEffect(() => {
+        document.addEventListener('paste', handlePaste);
+        return () => document.removeEventListener('paste', handlePaste);
+    }, [handlePaste]);
+
     const { startUpload } = useUploadThing("vehicleImage");
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,7 +170,7 @@ export default function VehicleForm({ initialData, isEditMode = false }: Vehicle
             const compressedFiles = await Promise.all(
                 files.map(async (file) => {
                     if (file.size <= 60 * 1024) return file;
-                    const options = { maxSizeMB: 0.35, maxWidthOrHeight: 1920, useWebWorker: true };
+                    const options = { maxSizeMB: 0.4, maxWidthOrHeight: 1920, useWebWorker: true };
                     try {
                         const compressedFile = await imageCompression(file, options);
                         return compressedFile.size < file.size ? compressedFile : file;
@@ -125,28 +187,31 @@ export default function VehicleForm({ initialData, isEditMode = false }: Vehicle
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent, saveAs: 'draft' | 'published' = 'published') => {
         e.preventDefault();
 
-        const totalImages = existingImages.length + files.length;
-
-        if (totalImages < 4) {
-            alert(`Please start with at least 4 images. You currently have ${totalImages}.`);
-            return;
+        if (saveAs === 'draft') {
+            setSavingDraft(true);
+        } else {
+            setLoading(true);
         }
 
-        setLoading(true);
-
         try {
+            // For published, validate minimum images
+            const totalImages = existingImages.length + files.length;
+            if (saveAs === 'published' && totalImages < 4) {
+                alert(`Please add at least 4 images before publishing. You currently have ${totalImages}.`);
+                return;
+            }
+
             let uploadedUrls: string[] = [...existingImages];
             const filesToUpload = optimizedFiles.length === files.length ? optimizedFiles : files;
 
             if (filesToUpload.length > 0) {
                 const res = await startUpload(filesToUpload);
                 if (res) {
-                    uploadedUrls = [...uploadedUrls, ...res.map(f => f.url)];
+                    uploadedUrls = [...uploadedUrls, ...res.map(f => f.ufsUrl)];
                 } else {
-                    setLoading(false);
                     alert("Image upload failed. Please try again.");
                     return;
                 }
@@ -154,12 +219,13 @@ export default function VehicleForm({ initialData, isEditMode = false }: Vehicle
 
             const vehicleData = {
                 ...formData,
-                price: Number(formData.price),
-                mileage: Number(formData.mileage),
+                price: formData.price ? Number(formData.price) : undefined,
+                mileage: formData.mileage ? Number(formData.mileage) : undefined,
                 engineCapacity: formData.engineCapacity ? Number(formData.engineCapacity) : undefined,
                 horsepower: formData.horsepower ? Number(formData.horsepower) : undefined,
                 features: formData.features.split('\n').map(f => f.trim()).filter(Boolean),
-                images: uploadedUrls
+                images: uploadedUrls,
+                status: saveAs,
             };
 
             const url = isEditMode ? `/api/vehicles/${initialData._id}` : '/api/vehicles';
@@ -172,11 +238,26 @@ export default function VehicleForm({ initialData, isEditMode = false }: Vehicle
             });
 
             if (response.ok) {
-                router.push('/motors/vehicles');
-                router.refresh();
+                if (saveAs === 'draft') {
+                    // Show success message and stay on page for drafts
+                    const toast = document.createElement('div');
+                    toast.className = 'fixed top-4 right-4 bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 font-medium';
+                    toast.textContent = 'Draft saved successfully!';
+                    document.body.appendChild(toast);
+                    setTimeout(() => toast.remove(), 2000);
+
+                    // Optionally redirect to vehicles list
+                    setTimeout(() => {
+                        router.push('/motors/vehicles');
+                        router.refresh();
+                    }, 1500);
+                } else {
+                    router.push('/motors/vehicles');
+                    router.refresh();
+                }
             } else {
-                console.error("Failed to save vehicle");
-                alert("Failed to save vehicle listing. Please try again.");
+                const errorData = await response.json();
+                alert(errorData.error || "Failed to save vehicle listing. Please try again.");
             }
 
         } catch (error) {
@@ -184,8 +265,12 @@ export default function VehicleForm({ initialData, isEditMode = false }: Vehicle
             alert("An error occurred. Please check your connection and try again.");
         } finally {
             setLoading(false);
+            setSavingDraft(false);
         }
     };
+
+    const handleSaveDraft = (e: React.FormEvent) => handleSubmit(e, 'draft');
+    const handlePublish = (e: React.FormEvent) => handleSubmit(e, 'published');
 
     const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 4));
     const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
@@ -200,10 +285,20 @@ export default function VehicleForm({ initialData, isEditMode = false }: Vehicle
     const inputClasses = "w-full bg-gray-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors";
     const selectClasses = "w-full bg-gray-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors appearance-none";
     const totalImagesCount = existingImages.length + files.length;
-    const isSubmitDisabled = loading || totalImagesCount < 4;
+
+    // Only disable if loading, OR if creating new/publishing draft and less than 4 images
+    const isSubmitDisabled = loading || (!isEditMode && totalImagesCount < 4) || (isDraft && totalImagesCount < 4);
 
     return (
-        <form onSubmit={handleSubmit} className="bg-gray-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-8 relative min-h-[500px]">
+        <form onSubmit={handlePublish} className="bg-gray-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-8 relative min-h-[500px]">
+
+            {/* Draft Indicator */}
+            {isDraft && (
+                <div className="absolute top-4 right-4 bg-yellow-500/20 border border-yellow-500/50 text-yellow-300 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 z-10">
+                    <FaSpinner className="w-4 h-4" />
+                    DRAFT
+                </div>
+            )}
 
             {/* Step Progress UI (Simplified for component) */}
             <div className="mb-8">
@@ -376,13 +471,12 @@ export default function VehicleForm({ initialData, isEditMode = false }: Vehicle
                     <div className="flex flex-col items-center pointer-events-none">
                         <FaCloudUploadAlt className="w-12 h-12 text-blue-500 mb-4" />
                         <span className="text-xl font-bold text-white mb-2">Upload Vehicle Images</span>
-                        <span className="text-sm text-gray-400">Drag & drop or click to browse</span>
+                        <span className="text-sm text-gray-400">Drag & drop, click to browse, or paste (Ctrl+V)</span>
                         <span className="text-xs text-gray-500 mt-1">JPG, PNG, WebP supported</span>
                         {files.length > 0 && <div className="mt-4 text-blue-400 text-sm font-bold bg-blue-500/10 px-4 py-2 rounded-full border border-blue-500/20">{files.length} new images selected</div>}
                     </div>
                 </div>
 
-                {/* Display Existing Images */}
                 {existingImages.length > 0 && (
                     <div className="space-y-2">
                         <label className="block text-sm font-medium text-gray-400">Existing Images</label>
@@ -397,6 +491,34 @@ export default function VehicleForm({ initialData, isEditMode = false }: Vehicle
                                     >
                                         <FaTrash className="w-3 h-3" />
                                     </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Display New Files Preview */}
+                {files.length > 0 && (
+                    <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-400">New Images ({files.length})</label>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {files.map((file, idx) => (
+                                <div key={idx} className="relative group rounded-lg overflow-hidden h-24 border border-blue-500/30 bg-blue-500/5">
+                                    <img
+                                        src={URL.createObjectURL(file)}
+                                        alt={file.name}
+                                        className="w-full h-full object-cover"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => removeNewFile(idx)}
+                                        className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                    >
+                                        <FaTrash className="w-3 h-3" />
+                                    </button>
+                                    <div className="absolute bottom-0 left-0 right-0 bg-black/70 px-2 py-1 text-xs text-white truncate">
+                                        {file.name}
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -440,22 +562,35 @@ export default function VehicleForm({ initialData, isEditMode = false }: Vehicle
                             Next Step <FaArrowRight className="ml-2" />
                         </button>
                     ) : (
-                        <div className="flex flex-col items-end">
+                        <div className="flex gap-3 items-end">
+                            {/* Save as Draft Button */}
                             <button
-                                type="submit"
-                                disabled={isSubmitDisabled}
-                                className={clsx(
-                                    "flex items-center px-8 py-3 rounded-xl font-bold transition-all shadow-lg",
-                                    isSubmitDisabled
-                                        ? "bg-gray-800 text-gray-500 cursor-not-allowed"
-                                        : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-500 hover:to-indigo-500 hover:shadow-blue-500/25"
-                                )}
+                                type="button"
+                                onClick={handleSaveDraft}
+                                disabled={savingDraft || loading}
+                                className="flex items-center px-6 py-3 rounded-xl font-bold transition-all border-2 border-gray-600 text-gray-300 hover:border-gray-500 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {loading ? <><FaSpinner className="animate-spin mr-2" /> Processing...</> : (isEditMode ? 'Save Changes' : 'Create Listing')}
+                                {savingDraft ? <><FaSpinner className="animate-spin mr-2" /> Saving Draft...</> : 'Save as Draft'}
                             </button>
-                            {isSubmitDisabled && !loading && (
-                                <p className="text-xs text-red-400 mt-2 font-medium"> Total images must be at least 4</p>
-                            )}
+
+                            {/* Publish/Save Button */}
+                            <div className="flex flex-col items-end">
+                                <button
+                                    type="submit"
+                                    disabled={isSubmitDisabled}
+                                    className={clsx(
+                                        "flex items-center px-8 py-3 rounded-xl font-bold transition-all shadow-lg",
+                                        isSubmitDisabled
+                                            ? "bg-gray-800 text-gray-500 cursor-not-allowed"
+                                            : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-500 hover:to-indigo-500 hover:shadow-blue-500/25"
+                                    )}
+                                >
+                                    {loading ? <><FaSpinner className="animate-spin mr-2" /> Processing...</> : (isDraft ? 'Publish Listing' : isEditMode ? 'Save Changes' : 'Create Listing')}
+                                </button>
+                                {isSubmitDisabled && !loading && (
+                                    <p className="text-xs text-red-400 mt-2 font-medium">Total images must be at least 4 to publish</p>
+                                )}
+                            </div>
                         </div>
                     )}
                 </div>

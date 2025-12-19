@@ -37,10 +37,28 @@ export async function PUT(
 
         const { id } = await params;
         const body = await request.json();
+        const { status = 'published', ...vehicleData } = body;
+
+        // Validation: If publishing, ensure required fields are present
+        if (status === 'published') {
+            const requiredFields = ['make', 'vehicleModel', 'year', 'price', 'mileage', 'images'];
+            for (const field of requiredFields) {
+                if (!vehicleData[field] || (field === 'images' && vehicleData[field].length < 4)) {
+                    return NextResponse.json({
+                        error: `Missing or invalid required field: ${field}`,
+                        field
+                    }, { status: 400 });
+                }
+            }
+        }
 
         const updatedVehicle = await Vehicle.findByIdAndUpdate(
             id,
-            { ...body },
+            {
+                ...vehicleData,
+                status,
+                lastEditedBy: user.email || user.id
+            },
             { new: true, runValidators: true }
         );
 

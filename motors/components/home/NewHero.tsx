@@ -42,7 +42,7 @@ export const NewHero: React.FC = () => {
 
                         <div className="flex flex-col sm:flex-row gap-4 mb-4">
                             <Link href="/listings">
-                                <Button size="lg" className="w-full sm:w-auto min-w-[160px] group shadow-[0_0_20px_rgba(0,212,255,0.2)]">
+                                <Button size="lg" className="w-full flex gap-4 items-center justify-center sm:w-auto min-w-[160px] group shadow-[0_0_20px_rgba(0,212,255,0.2)]">
                                     Explore Cars
                                     <IoArrowForward className="group-hover:translate-x-1 transition-transform" />
                                 </Button>

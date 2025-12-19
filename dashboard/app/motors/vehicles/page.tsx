@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FaPlus, FaTag, FaRoad, FaGasPump, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaPlus, FaTag, FaRoad, FaGasPump, FaEdit, FaTrash, FaClock } from 'react-icons/fa';
 import clsx from 'clsx';
 
 interface IVehicle {
@@ -15,15 +15,21 @@ interface IVehicle {
     mileage: number;
     fuelType: string;
     images: string[];
+    status?: 'draft' | 'published';
+    updatedAt?: string;
 }
+
+type TabType = 'published' | 'draft' | 'all';
 
 export default function VehiclesPage() {
     const [vehicles, setVehicles] = useState<IVehicle[]>([]);
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState<TabType>('published');
 
-    const fetchVehicles = async () => {
+    const fetchVehicles = async (status: TabType = 'published') => {
+        setLoading(true);
         try {
-            const res = await fetch('/api/vehicles');
+            const res = await fetch(`/api/vehicles?status=${status}`);
             if (res.ok) {
                 const data = await res.json();
                 setVehicles(data);
@@ -36,8 +42,8 @@ export default function VehiclesPage() {
     };
 
     useEffect(() => {
-        fetchVehicles();
-    }, []);
+        fetchVehicles(activeTab);
+    }, [activeTab]);
 
     const handleDelete = async (id: string) => {
         if (confirm("Are you sure you want to delete this vehicle? This action cannot be undone.")) {
@@ -47,7 +53,6 @@ export default function VehiclesPage() {
                 });
                 if (res.ok) {
                     setVehicles(prev => prev.filter(v => v._id !== id));
-                    // Optional: Validation toast
                 } else {
                     alert("Failed to delete vehicle.");
                 }
@@ -57,6 +62,11 @@ export default function VehiclesPage() {
             }
         }
     };
+
+    const tabs: { id: TabType; label: string }[] = [
+        { id: 'all', label: 'All' },
+        { id: 'draft', label: 'Drafts' },
+    ];
 
     return (
         <div className="max-w-7xl mx-auto">
@@ -75,11 +85,39 @@ export default function VehiclesPage() {
                 </Link>
             </div>
 
+            {/* Tabs */}
+            <div className="flex gap-2 mb-6 border-b border-white/10">
+                {tabs.map(tab => (
+                    <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={clsx(
+                            "px-6 py-3 font-medium transition-all relative",
+                            activeTab === tab.id
+                                ? "text-blue-400"
+                                : "text-gray-400 hover:text-white"
+                        )}
+                    >
+                        {tab.label}
+                        {activeTab === tab.id && (
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"></div>
+                        )}
+                    </button>
+                ))}
+            </div>
+
             {loading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[1, 2, 3].map(i => (
                         <div key={i} className="h-96 rounded-2xl bg-white/5 animate-pulse border border-white/5"></div>
                     ))}
+                </div>
+            ) : vehicles.length === 0 ? (
+                <div className="text-center py-16">
+                    <p className="text-gray-400 text-lg">No {activeTab === 'draft' ? 'drafts' : 'vehicles'} found.</p>
+                    {activeTab === 'draft' && (
+                        <p className="text-gray-500 text-sm mt-2">Save incomplete vehicles as drafts to continue later.</p>
+                    )}
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -94,8 +132,13 @@ export default function VehiclesPage() {
                                     </div>
                                 )}
                                 <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
-                                    <span className="text-white font-bold">KES {vehicle.price.toLocaleString()}</span>
+                                    <span className="text-white font-bold">KES {vehicle.price?.toLocaleString() || 'N/A'}</span>
                                 </div>
+                                {vehicle.status === 'draft' && (
+                                    <div className="absolute top-4 left-4 bg-yellow-500/90 px-3 py-1 rounded-full">
+                                        <span className="text-black font-bold text-xs">DRAFT</span>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="p-6">
@@ -103,15 +146,21 @@ export default function VehiclesPage() {
                                     <div>
                                         <h3 className="text-xl font-bold text-white">{vehicle.year} {vehicle.make} {vehicle.vehicleModel}</h3>
                                         <div className="flex items-center gap-4 mt-2 text-sm text-gray-400">
-                                            <span className="flex items-center gap-1"><FaRoad className="text-blue-400" /> {vehicle.mileage.toLocaleString()} km</span>
-                                            <span className="flex items-center gap-1"><FaGasPump className="text-blue-400" /> {vehicle.fuelType}</span>
+                                            {vehicle.mileage && <span className="flex items-center gap-1"><FaRoad className="text-blue-400" /> {vehicle.mileage.toLocaleString()} km</span>}
+                                            {vehicle.fuelType && <span className="flex items-center gap-1"><FaGasPump className="text-blue-400" /> {vehicle.fuelType}</span>}
                                         </div>
+                                        {vehicle.status === 'draft' && vehicle.updatedAt && (
+                                            <div className="flex items-center gap-1 mt-2 text-xs text-gray-500">
+                                                <FaClock />
+                                                Last edited: {new Date(vehicle.updatedAt).toLocaleDateString()}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
                                 <div className="flex items-center gap-2 pt-4 border-t border-white/5">
                                     <Link href={`/motors/vehicles/${vehicle._id}/edit`} className="flex-1 flex items-center justify-center py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white text-sm font-medium transition-colors">
-                                        <FaEdit className="mr-2 text-gray-400" /> Edit
+                                        <FaEdit className="mr-2 text-gray-400" /> {vehicle.status === 'draft' ? 'Continue' : 'Edit'}
                                     </Link>
                                     <button
                                         onClick={() => handleDelete(vehicle._id)}
