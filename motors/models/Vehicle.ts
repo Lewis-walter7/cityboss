@@ -1,3 +1,4 @@
+
 import mongoose, { Schema, Model, Document } from 'mongoose';
 
 export interface IVehicle extends Document {
@@ -7,18 +8,23 @@ export interface IVehicle extends Document {
     price: number;
     mileage: number;
     bodyType: 'SUV' | 'Sedan' | '4x4' | 'Luxury' | 'Coupe' | 'Truck' | 'Convertible';
-    transmission: 'Automatic' | 'Manual';
-    fuelType: 'Gasoline' | 'Diesel' | 'Electric' | 'Hybrid';
+    transmission: 'Automatic' | 'Manual' | 'CVT' | 'Dual Clutch';
+    fuelType: 'Gasoline' | 'Petrol' | 'Diesel' | 'Electric' | 'Hybrid' | 'Plug-in Hybrid'; // 'Gasoline' usually == 'Petrol' but keeping both for user pref
     drivetrain: 'FWD' | 'RWD' | 'AWD' | '4WD';
+    engineCapacity: number;
     exteriorColor: string;
     interiorColor: string;
     engine: string;
     horsepower: number;
     description: string;
     features: string[];
+    tradeInAccepted: boolean;
+    privateSeller: boolean;
     images: string[];
     isFeatured: boolean;
     isAvailable: boolean;
+    status: 'draft' | 'published';
+    lastEditedBy: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -34,15 +40,20 @@ const VehicleSchema = new Schema<IVehicle>(
         transmission: { type: String, required: true },
         fuelType: { type: String, required: true },
         drivetrain: { type: String, required: false },
+        engineCapacity: { type: Number, required: false },
         exteriorColor: { type: String, required: false },
         interiorColor: { type: String, required: false },
         engine: { type: String, required: false },
         horsepower: { type: Number, required: false },
         description: { type: String, required: false },
         features: { type: [String], required: false },
+        tradeInAccepted: { type: Boolean, default: false },
+        privateSeller: { type: Boolean, default: false },
         images: { type: [String], required: false },
         isFeatured: { type: Boolean, default: false },
         isAvailable: { type: Boolean, default: true },
+        status: { type: String, enum: ['draft', 'published'], default: 'published' },
+        lastEditedBy: { type: String, required: false },
     },
     {
         timestamps: true,

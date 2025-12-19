@@ -50,6 +50,7 @@ export default function VehicleForm({ initialData, isEditMode = false }: Vehicle
         description: '',
         features: '',
         tradeInAccepted: false,
+        privateSeller: false,
         isFeatured: false,
         isAvailable: true,
     });
@@ -74,6 +75,7 @@ export default function VehicleForm({ initialData, isEditMode = false }: Vehicle
                 description: initialData.description || '',
                 features: Array.isArray(initialData.features) ? initialData.features.join('\n') : initialData.features || '',
                 tradeInAccepted: initialData.tradeInAccepted || false,
+                privateSeller: initialData.privateSeller || false,
                 isFeatured: initialData.isFeatured || false,
                 isAvailable: initialData.isAvailable !== undefined ? initialData.isAvailable : true,
             });
@@ -453,6 +455,51 @@ export default function VehicleForm({ initialData, isEditMode = false }: Vehicle
                         />
                     </div>
                     <p className="text-xs text-gray-500 mt-2">Enter features list manually. Press Enter for new line.</p>
+                </div>
+
+                {/* Toggle Options */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Private Seller Toggle */}
+                    <div className="bg-black/20 border border-white/10 rounded-xl p-4">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <label className="text-sm font-medium text-gray-300">Private Seller</label>
+                                <p className="text-xs text-gray-500 mt-1">Is this a private seller listing?</p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setFormData({ ...formData, privateSeller: !formData.privateSeller })}
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData.privateSeller ? 'bg-blue-600' : 'bg-gray-700'
+                                    }`}
+                            >
+                                <span
+                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${formData.privateSeller ? 'translate-x-6' : 'translate-x-1'
+                                        }`}
+                                />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Trade-In Accepted Toggle */}
+                    <div className="bg-black/20 border border-white/10 rounded-xl p-4">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <label className="text-sm font-medium text-gray-300">Trade-In Accepted</label>
+                                <p className="text-xs text-gray-500 mt-1">Accept trade-in offers?</p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setFormData({ ...formData, tradeInAccepted: !formData.tradeInAccepted })}
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData.tradeInAccepted ? 'bg-blue-600' : 'bg-gray-700'
+                                    }`}
+                            >
+                                <span
+                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${formData.tradeInAccepted ? 'translate-x-6' : 'translate-x-1'
+                                        }`}
+                                />
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 

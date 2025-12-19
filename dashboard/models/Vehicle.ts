@@ -19,6 +19,7 @@ export interface IVehicle extends Document {
     description: string;
     features: string[];
     tradeInAccepted: boolean;
+    privateSeller: boolean;
     images: string[];
     isFeatured: boolean;
     isAvailable: boolean;
@@ -47,6 +48,7 @@ const VehicleSchema = new Schema<IVehicle>(
         description: { type: String, required: false },
         features: { type: [String], required: false },
         tradeInAccepted: { type: Boolean, default: false },
+        privateSeller: { type: Boolean, default: false },
         images: { type: [String], required: false },
         isFeatured: { type: Boolean, default: false },
         isAvailable: { type: Boolean, default: true },

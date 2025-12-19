@@ -87,13 +87,26 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
                 <div className="container mx-auto px-6 lg:px-8 max-w-7xl">
                     {/* Header */}
                     <div className="mb-8">
-                        <h1 className="heading-2 mb-2">
-                            {vehicle.year} {vehicle.make} {vehicle.vehicleModel}
-                        </h1>
+                        <div className="flex flex-wrap items-center gap-3 mb-2">
+                            <h1 className="heading-2">
+                                {vehicle.year} {vehicle.make} {vehicle.vehicleModel}
+                            </h1>
+                            {vehicle.privateSeller && (
+                                <span className="px-3 py-1 bg-purple-600/20 border border-purple-500/50 text-purple-300 text-sm font-bold rounded-full">
+                                    PRIVATE SELLER
+                                </span>
+                            )}
+                        </div>
                         <div className="flex items-center gap-4 text-[var(--color-silver)]">
                             <span>{vehicle.bodyType}</span>
                             <span>•</span>
                             <span>{formatMileage(vehicle.mileage)} miles</span>
+                            {vehicle.tradeInAccepted && (
+                                <>
+                                    <span>•</span>
+                                    <span className="text-green-400">Trade-In Accepted</span>
+                                </>
+                            )}
                         </div>
                     </div>
 
