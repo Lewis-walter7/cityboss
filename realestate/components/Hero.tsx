@@ -6,7 +6,7 @@ export const Hero = () => {
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
             {/* Background with Gradient Overlay */}
             <div className="absolute inset-0 z-0">
-                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-[var(--color-background)] z-10" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-[var(--color-background)] z-10" />
                 <img
                     src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop"
                     alt="Luxury modern villa"
@@ -28,17 +28,16 @@ export const Hero = () => {
                     <span className="text-white">Exclusive Estates</span>
                 </h1>
 
-                <p className="max-w-2xl mx-auto text-lg md:text-xl text-zinc-400 mb-10 leading-relaxed">
+                <p className="max-w-2xl mx-auto text-lg md:text-xl text-white/90 mb-10 leading-relaxed font-medium [text-shadow:_0_1px_20px_rgb(0_0_0_/_60%)]">
                     Discover a curated collection of ultra-luxury estates and prime development land in Kenya&apos;s most desirable locations.
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                     <Button size="lg" className="w-full sm:w-auto">Explore Properties</Button>
-                    <Button variant="outline" size="lg" className="w-full sm:w-auto">Virtual Tours</Button>
                 </div>
 
                 {/* Stats */}
-                <div className="mt-20 grid grid-cols-2 md:grid-cols-3 gap-8 border-t border-white/5 pt-10">
+                <div className="mt-20 grid justify-center grid-cols-2 md:grid-cols-3 gap-8 border-t border-white/5 pt-10">
                     {[
                         { label: 'Properties', value: '450+' },
                         { label: 'Happy Clients', value: '1.2k' },
