@@ -35,7 +35,7 @@ export default function Sidebar({ user, project = 'motors', isMobileMenuOpen, se
 
     const navItems = [
         { name: 'Dashboard', href: `/${project}`, icon: FaChartBar },
-        { name: isRealEstate ? 'Properties' : 'Vehicles', href: `/${project}/vehicles`, icon: isRealEstate ? FaHome : FaCar },
+        { name: isRealEstate ? 'Properties' : 'Vehicles', href: `/${project}/${isRealEstate ? 'properties' : 'vehicles'}`, icon: isRealEstate ? FaHome : FaCar },
     ];
 
     // Close user menu when clicking outside

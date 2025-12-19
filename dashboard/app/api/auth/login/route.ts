@@ -49,13 +49,17 @@ export async function POST(request: Request) {
             name: admin.name,
         });
 
-        // Set cookie using helper
-        setTokenCookie(token);
-
-        return NextResponse.json({
+        // Create response
+        const responseData = {
             success: true,
             admin: { name: admin.name, email: admin.email, role: admin.role },
-        });
+        };
+        const res = NextResponse.json(responseData);
+
+        // Set cookie using helper (passing the response)
+        await setTokenCookie(token, res);
+
+        return res;
     } catch (error) {
         console.error('Login error:', error);
         const errorMessage =

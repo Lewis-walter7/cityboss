@@ -1,12 +1,39 @@
+import dbConnect from '@/lib/db';
+import Property from '@/models/Property';
+import { FaHome } from 'react-icons/fa';
+import DashboardChart from '@/components/DashboardChart';
 
-import { FaBuilding, FaHome, FaChartBar } from 'react-icons/fa';
+export default async function RealEstateDashboardHome() {
+    await dbConnect();
+    const totalProperties = await Property.countDocuments();
 
-export default function RealEstateDashboardHome() {
+    // Calculate properties added this week
+    const lastWeek = new Date();
+    lastWeek.setDate(lastWeek.getDate() - 7);
+    const addedThisWeek = await Property.countDocuments({
+        createdAt: { $gte: lastWeek }
+    });
+
     const stats = [
-        { label: 'Properties Listed', value: '45', icon: FaHome, change: '+3' },
-        { label: 'Agencies', value: '12', icon: FaBuilding, change: '+0' },
-        { label: 'Total Inquiries', value: '340', icon: FaChartBar, change: '+8%' },
+        { label: 'Properties Listed', value: totalProperties.toString(), icon: FaHome, change: `+${addedThisWeek}` },
     ];
+
+    // Fetch daily activity for the chart (last 7 days)
+    const chartData = await Promise.all([...Array(7)].map(async (_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - (6 - i));
+        date.setHours(0, 0, 0, 0);
+
+        const nextDate = new Date(date);
+        nextDate.setDate(date.getDate() + 1);
+
+        const count = await Property.countDocuments({
+            createdAt: { $gte: date, $lt: nextDate }
+        });
+
+        const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+        return { label: dayName, value: count };
+    }));
 
     return (
         <div className="max-w-6xl mx-auto">
@@ -32,9 +59,11 @@ export default function RealEstateDashboardHome() {
                 ))}
             </div>
 
-            <div className="bg-gray-900 border border-white/10 rounded-xl p-6 h-64 flex items-center justify-center text-gray-500">
-                Real Estate Activity Chart
-            </div>
+            <DashboardChart
+                data={chartData}
+                title="7-Day Listing Activity"
+                color="emerald"
+            />
         </div>
     );
 }

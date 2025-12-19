@@ -46,16 +46,22 @@ export async function verifyToken(token: string) {
 /**
  * Set a cookie with the JWT token
  */
-export async function setTokenCookie(token: string) {
-    const cookieStore = await cookies();
-    cookieStore.set('admin_token', token, {
+export async function setTokenCookie(token: string, response?: any) {
+    const cookieOptions: any = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         path: '/',
         maxAge: 60 * 60 * 24,
-        domain: process.env.NODE_ENV === 'production' ? 'cityboss-dashboard.vercel.app' : 'localhost',
-    });
+        domain: process.env.NODE_ENV === 'production' ? 'cityboss-dashboard.vercel.app' : undefined,
+    };
+
+    if (response && response.cookies) {
+        response.cookies.set('admin_token', token, cookieOptions);
+    } else {
+        const cookieStore = await cookies();
+        cookieStore.set('admin_token', token, cookieOptions);
+    }
 }
 
 

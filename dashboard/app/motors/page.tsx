@@ -1,17 +1,39 @@
-
-import { FaCar, FaChartLine, FaWrench } from 'react-icons/fa';
+import { FaCar } from 'react-icons/fa';
 import dbConnect from '@/lib/db';
 import Vehicle from '@/models/Vehicle';
+import DashboardChart from '@/components/DashboardChart';
 
 export default async function MotorsDashboardHome() {
     await dbConnect();
     const vehicleCount = await Vehicle.countDocuments();
 
+    // Calculate vehicles added this week
+    const lastWeek = new Date();
+    lastWeek.setDate(lastWeek.getDate() - 7);
+    const addedThisWeek = await Vehicle.countDocuments({
+        createdAt: { $gte: lastWeek }
+    });
+
     const stats = [
-        { label: 'Active Listings', value: vehicleCount.toString(), icon: FaCar, change: '+12' },
-        { label: 'Dealerships', value: '8', icon: FaWrench, change: '+1' },
-        { label: 'Total Views', value: '1.2k', icon: FaChartLine, change: '+15%' },
+        { label: 'Active Listings', value: vehicleCount.toString(), icon: FaCar, change: `+${addedThisWeek}` },
     ];
+
+    // Fetch daily activity for the chart (last 7 days)
+    const chartData = await Promise.all([...Array(7)].map(async (_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - (6 - i));
+        date.setHours(0, 0, 0, 0);
+
+        const nextDate = new Date(date);
+        nextDate.setDate(date.getDate() + 1);
+
+        const count = await Vehicle.countDocuments({
+            createdAt: { $gte: date, $lt: nextDate }
+        });
+
+        const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+        return { label: dayName, value: count };
+    }));
 
     return (
         <div className="max-w-6xl mx-auto">
@@ -37,9 +59,11 @@ export default async function MotorsDashboardHome() {
                 ))}
             </div>
 
-            <div className="bg-gray-900 border border-white/10 rounded-xl p-6 h-48 md:h-64 flex items-center justify-center text-gray-500">
-                Motors Activity Chart
-            </div>
+            <DashboardChart
+                data={chartData}
+                title="7-Day Listing Activity"
+                color="blue"
+            />
         </div>
     );
 }
