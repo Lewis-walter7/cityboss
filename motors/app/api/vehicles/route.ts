@@ -1,22 +1,22 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import Vehicle from '@/models/Vehicle'; // adjust path to your Vehicle model
 import { connectToDB } from '@/lib/mongoose';
 
 // Enable ISR with 60 second revalidation
 export const revalidate = 60;
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
     try {
         await connectToDB();
 
         // Optional: read query params for pagination
-        const url = new URL(request.url);
-        const page = parseInt(url.searchParams.get('page') || '1');
-        const limit = parseInt(url.searchParams.get('limit') || '20');
+        const { searchParams } = request.nextUrl;
+        const page = parseInt(searchParams.get('page') || '1');
+        const limit = parseInt(searchParams.get('limit') || '20');
         const skip = (page - 1) * limit;
 
         const query: any = {};
-        const search = url.searchParams.get('search');
+        const search = searchParams.get('search');
 
         // Enhanced search with prefix matching support
         if (search) {
@@ -40,20 +40,20 @@ export async function GET(request: Request) {
             }
         }
 
-        const make = url.searchParams.get('make');
+        const make = searchParams.get('make');
         if (make && make !== 'All') query.make = make;
 
-        const bodyType = url.searchParams.get('bodyType');
+        const bodyType = searchParams.get('bodyType');
         if (bodyType && bodyType !== 'All') query.bodyType = bodyType;
 
-        const transmission = url.searchParams.get('transmission');
+        const transmission = searchParams.get('transmission');
         if (transmission && transmission !== 'All') query.transmission = transmission;
 
-        const fuelType = url.searchParams.get('fuelType');
+        const fuelType = searchParams.get('fuelType');
         if (fuelType && fuelType !== 'All') query.fuelType = fuelType;
 
-        const minPrice = url.searchParams.get('minPrice');
-        const maxPrice = url.searchParams.get('maxPrice');
+        const minPrice = searchParams.get('minPrice');
+        const maxPrice = searchParams.get('maxPrice');
         if (minPrice || maxPrice) {
             query.price = {};
             if (minPrice) query.price.$gte = Number(minPrice);

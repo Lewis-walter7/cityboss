@@ -13,7 +13,6 @@ export const ourFileRouter = {
             try {
                 console.log("🔐 Attempting to get admin session for upload...");
                 const user = await getAdminSession();
-                console.log("👤 User session:", user ? "Found" : "Not found", user);
 
                 if (!user) {
                     console.error("❌ No user session found - upload blocked");
