@@ -60,6 +60,30 @@ const VehicleSchema = new Schema<IVehicle>(
     }
 );
 
+// Performance Indexes
+// Compound index for common filter combinations - dramatically speeds up filtered queries
+VehicleSchema.index({
+    make: 1,
+    bodyType: 1,
+    transmission: 1,
+    fuelType: 1,
+    price: 1,
+    createdAt: -1
+});
+
+// Text index for search functionality - enables fast full-text search
+VehicleSchema.index({
+    make: 'text',
+    vehicleModel: 'text'
+});
+
+// Individual indexes for common single-field queries
+VehicleSchema.index({ isFeatured: 1, createdAt: -1 });
+VehicleSchema.index({ isAvailable: 1 });
+VehicleSchema.index({ status: 1 });
+VehicleSchema.index({ price: 1 });
+VehicleSchema.index({ year: 1 });
+
 // Prevent overwrite of model if it already exists (Next.js HMR)
 const Vehicle: Model<IVehicle> = mongoose.models.Vehicle || mongoose.model<IVehicle>('Vehicle', VehicleSchema);
 

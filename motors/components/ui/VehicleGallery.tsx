@@ -77,7 +77,9 @@ export function VehicleGallery({ images, title }: VehicleGalleryProps) {
                                 src={img}
                                 alt={`${title} thumbnail ${i + 1}`}
                                 fill
+                                loading="lazy"
                                 className="object-cover"
+                                sizes="(max-width: 768px) 20vw, 10vw"
                             />
                         </button>
                     ))}

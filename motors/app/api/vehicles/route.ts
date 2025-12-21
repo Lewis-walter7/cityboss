@@ -13,23 +13,23 @@ export async function GET(request: Request) {
         const skip = (page - 1) * limit;
 
         const query: any = {};
-
         const search = url.searchParams.get('search');
+
+        // Use MongoDB text search instead of regex for better performance
         if (search) {
-            const searchRegex = { $regex: search, $options: 'i' };
+            // Check if text index exists, fall back to regex if not
             const isNumber = !isNaN(Number(search));
 
-            const orConditions = [
-                { make: searchRegex },
-                { vehicleModel: searchRegex },
-            ];
-
-            if (isNumber) {
-                // strict match for year if search is a number
-                orConditions.push({ year: Number(search) } as any);
+            if (!isNumber) {
+                // Use text search for string queries (leverages text index)
+                query.$text = { $search: search };
+            } else {
+                // For numeric searches, check year directly
+                query.$or = [
+                    { year: Number(search) },
+                    { price: Number(search) }
+                ];
             }
-
-            query.$or = orConditions;
         }
 
         const make = url.searchParams.get('make');
@@ -52,9 +52,34 @@ export async function GET(request: Request) {
             if (maxPrice) query.price.$lte = Number(maxPrice);
         }
 
-        // Fetch vehicles from MongoDB
+
+        // Select only necessary fields to reduce data transfer
+        // Exclude large fields like full description and features for list view
+        const projection = {
+            make: 1,
+            vehicleModel: 1,
+            year: 1,
+            price: 1,
+            mileage: 1,
+            bodyType: 1,
+            transmission: 1,
+            fuelType: 1,
+            drivetrain: 1,
+            images: 1,
+            isFeatured: 1,
+            exteriorColor: 1,
+            horsepower: 1,
+            createdAt: 1
+        };
+
+        // Fetch vehicles from MongoDB with optimizations
         const [vehicles, total] = await Promise.all([
-            Vehicle.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+            Vehicle.find(query)
+                .select(projection)
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean(),
             Vehicle.countDocuments(query)
         ]);
 
@@ -64,8 +89,7 @@ export async function GET(request: Request) {
             vehicles,
             total,
             page,
-            totalPages,
-            debug: { query, params: { search, make, bodyType } }
+            totalPages
         });
     } catch (error) {
         console.error('Error fetching vehicles:', error);

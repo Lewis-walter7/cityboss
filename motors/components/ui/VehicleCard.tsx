@@ -38,9 +38,11 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
                             src={vehicle.images[0]}
                             alt={`${vehicle.year} ${vehicle.make} ${vehicle.vehicleModel}`}
                             fill
+                            loading="lazy"
                             className={`object-cover group-hover:scale-110 transition-transform duration-500 ${isImageLoading ? 'opacity-0' : 'opacity-100'
                                 }`}
                             onLoad={() => setIsImageLoading(false)}
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         />
                     ) : (
                         <div className="w-full h-full bg-gradient-to-br from-[var(--color-gunmetal)] to-[var(--color-charcoal)] flex items-center justify-center">

@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
             return { title: 'Vehicle Not Found' };
         }
 
-        const vehicle = await Vehicle.findById(id);
+        const vehicle = await Vehicle.findById(id).lean();
 
         if (!vehicle) {
             return { title: 'Vehicle Not Found' };
@@ -49,7 +49,7 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
 
     let vehicle = null;
     if (mongoose.isValidObjectId(id)) {
-        vehicle = await Vehicle.findById(id);
+        vehicle = await Vehicle.findById(id).lean();
     }
 
     if (!vehicle) {

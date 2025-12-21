@@ -19,7 +19,7 @@ export async function GET(
 
         await connectToDB();
 
-        const vehicle = await Vehicle.findById(id);
+        const vehicle = await Vehicle.findById(id).lean();
 
         if (!vehicle) {
             return NextResponse.json(

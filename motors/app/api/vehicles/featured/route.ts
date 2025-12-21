@@ -8,7 +8,8 @@ export async function GET() {
 
         const vehicles = await Vehicle.find({ isFeatured: true, isAvailable: true })
             .sort({ createdAt: -1 })
-            .limit(6);
+            .limit(6)
+            .lean();
 
         return NextResponse.json(vehicles);
     } catch (error) {
