@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import Vehicle from '@/models/Vehicle'; // adjust path to your Vehicle model
 import { connectToDB } from '@/lib/mongoose';
 
+// Enable ISR with 60 second revalidation
+export const revalidate = 60;
+
 export async function GET(request: Request) {
     try {
         await connectToDB();
@@ -15,16 +18,21 @@ export async function GET(request: Request) {
         const query: any = {};
         const search = url.searchParams.get('search');
 
-        // Use MongoDB text search instead of regex for better performance
+        // Enhanced search with prefix matching support
         if (search) {
-            // Check if text index exists, fall back to regex if not
             const isNumber = !isNaN(Number(search));
 
             if (!isNumber) {
-                // Use text search for string queries (leverages text index)
-                query.$text = { $search: search };
+                // For text searches, use regex for prefix matching on make
+                // and text search for vehicleModel to support partial matches like "toyo" -> "toyota"
+                const searchRegex = new RegExp(`^${search}`, 'i'); // Prefix match, case-insensitive
+
+                query.$or = [
+                    { make: searchRegex },
+                    { vehicleModel: { $regex: search, $options: 'i' } }
+                ];
             } else {
-                // For numeric searches, check year directly
+                // For numeric searches, check year and price
                 query.$or = [
                     { year: Number(search) },
                     { price: Number(search) }

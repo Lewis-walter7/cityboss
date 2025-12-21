@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import {
     SiBmw, SiMercedes, SiPorsche,
     SiToyota, SiNissan, SiSubaru, SiMitsubishi, SiMazda
 } from 'react-icons/si';
 import { IoCarSport, IoStar } from 'react-icons/io5';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 // Brands popular in Kenya + Luxury tier
 const brands = [
@@ -21,17 +22,8 @@ const brands = [
 ];
 
 export const SpinningWheel: React.FC = () => {
-    const [isMobile, setIsMobile] = useState(false);
-
-    useEffect(() => {
-        const checkMobile = () => {
-            setIsMobile(window.innerWidth < 768);
-        };
-
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
+    // Use media query instead of resize listener for better performance
+    const isMobile = useMediaQuery('(max-width: 768px)');
 
     // Responsive values based on screen size
     const containerSize = isMobile ? 320 : 480;

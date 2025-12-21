@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { VehicleCard } from '@/components/ui/VehicleCard';
@@ -20,6 +21,8 @@ const transmissions = ['All', 'Automatic', 'Manual'];
 const fuelTypes = ['All', 'Gasoline', 'Diesel', 'Electric', 'Hybrid'];
 
 export default function ListingsPage() {
+    const searchParams = useSearchParams();
+
     const [vehicles, setVehicles] = useState<Vehicle[]>([]);
     const [loading, setLoading] = useState(false);
     const [total, setTotal] = useState(0);
@@ -27,26 +30,22 @@ export default function ListingsPage() {
     const [totalPages, setTotalPages] = useState(1);
     const ITEMS_PER_PAGE = 9;
 
-    // Filters
-    const [make, setMake] = useState('All');
-    const [bodyType, setBodyType] = useState('All');
-    const [transmission, setTransmission] = useState('All');
-    const [fuelType, setFuelType] = useState('All');
-    const [minPrice, setMinPrice] = useState('');
-    const [maxPrice, setMaxPrice] = useState('');
+    // Initialize filters from URL parameters
+    const [make, setMake] = useState(searchParams.get('make') || 'All');
+    const [bodyType, setBodyType] = useState(searchParams.get('bodyType') || 'All');
+    const [transmission, setTransmission] = useState(searchParams.get('transmission') || 'All');
+    const [fuelType, setFuelType] = useState(searchParams.get('fuelType') || 'All');
+    const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') || '');
+    const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') || '');
 
     // Search
-    const [search, setSearch] = useState('');
+    const [search, setSearch] = useState(searchParams.get('search') || '');
     const debouncedSearch = useDebounce(search, 500);
 
     const { toggleFavorite, isFavorite } = useFavorites();
 
-    React.useEffect(() => {
-        filterVehicles();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page, make, bodyType, transmission, fuelType, minPrice, maxPrice, debouncedSearch]);
-
-    const filterVehicles = async () => {
+    // Memoized filter function
+    const filterVehicles = useCallback(async () => {
         setLoading(true);
         try {
             const params = new URLSearchParams();
@@ -56,7 +55,7 @@ export default function ListingsPage() {
             if (fuelType !== 'All') params.append('fuelType', fuelType);
             if (minPrice) params.append('minPrice', minPrice);
             if (maxPrice) params.append('maxPrice', maxPrice);
-            if (search) params.append('search', search);
+            if (debouncedSearch) params.append('search', debouncedSearch);
             params.append('page', page.toString());
             params.append('limit', ITEMS_PER_PAGE.toString());
 
@@ -73,7 +72,11 @@ export default function ListingsPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [page, make, bodyType, transmission, fuelType, minPrice, maxPrice, debouncedSearch]);
+
+    React.useEffect(() => {
+        filterVehicles();
+    }, [filterVehicles]);
 
     const clearFilters = () => {
         setMake('All');

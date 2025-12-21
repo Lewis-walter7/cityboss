@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { connectToDB } from '@/lib/mongoose';
 import Vehicle from '@/models/Vehicle';
 
+// Cache featured vehicles for 5 minutes
+export const revalidate = 300;
+
 export async function GET() {
     try {
         await connectToDB();

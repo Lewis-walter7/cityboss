@@ -127,7 +127,21 @@ export const Footer: React.FC = () => {
                 {/* Bottom Bar */}
                 <div className="border-t border-white/10 pt-8">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-[var(--color-silver)]">
-                        <p>© {currentYear} City Boss Motors. All rights reserved.</p>
+                        <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
+                            <p>© {currentYear} City Boss Motors. All rights reserved.</p>
+                            <span className="hidden md:inline text-white/20">•</span>
+                            <p className="flex items-center gap-1">
+                                Designed by{' '}
+                                <a
+                                    href="https://lewisindusa.vercel.app"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-[var(--color-accent)] hover:underline font-medium transition-colors"
+                                >
+                                    Lewis Walter
+                                </a>
+                            </p>
+                        </div>
                         <div className="flex gap-6">
                             <Link href="/privacy" className="hover:text-[var(--color-accent)] transition-colors">
                                 Privacy Policy

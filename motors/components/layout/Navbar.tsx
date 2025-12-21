@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { IoMenu, IoClose, IoCar } from 'react-icons/io5';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,15 +19,23 @@ export const Navbar: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const pathname = usePathname();
+    const scrollTickingRef = useRef(false);
+
+    // Optimized scroll handler with requestAnimationFrame
+    const handleScroll = useCallback(() => {
+        if (!scrollTickingRef.current) {
+            window.requestAnimationFrame(() => {
+                setIsScrolled(window.scrollY > 50);
+                scrollTickingRef.current = false;
+            });
+            scrollTickingRef.current = true;
+        }
+    }, []);
 
     useEffect(() => {
-        const handleScroll = () => {
-            setIsScrolled(window.scrollY > 50);
-        };
-
-        window.addEventListener('scroll', handleScroll);
+        window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    }, [handleScroll]);
 
     useEffect(() => {
         if (isOpen) {
@@ -45,11 +54,13 @@ export const Navbar: React.FC = () => {
                 <div className="flex items-center justify-between">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2 group">
-                        {/* <IoCar className="text-[var(--color-accent)] text-3xl group-hover:scale-110 transition-transform duration-300" /> */}
-                        <img
+                        <Image
                             src="/citybosslogo.png"
                             alt="City Boss Motors"
+                            width={40}
+                            height={40}
                             className="h-10 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
+                            priority
                         />
                         <span className="text-xl font-bold">
                             City Boss <span className="text-gradient">Motors</span>
